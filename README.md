@@ -27,6 +27,8 @@ The API, orchestration logic, and provider adapter are separated so each layer c
 - Validated request and response schemas
 - Provider abstraction with a deterministic mock implementation
 - Provider timeout and error translation
+- Correlation IDs through the `X-Request-ID` header
+- Structured JSON application logging
 - Environment-based configuration
 - Unit and integration tests
 - Non-root Docker image and Docker Compose setup
@@ -125,4 +127,3 @@ The image runs as a non-root user and exposes port `8000` with a container healt
 - Container and dependency security scanning
 
 Additional detail is available in [architecture](docs/architecture.md), [API](docs/api.md), [deployment](docs/deployment.md), and [operations](docs/operations.md).
-

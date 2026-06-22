@@ -1,3 +1,4 @@
+import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -8,6 +9,9 @@ from app.api.router import api_router
 from app.core.config import get_settings
 from app.core.exceptions import InferenceError
 from app.core.logging import configure_logging
+from app.core.middleware import RequestIDMiddleware
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -24,17 +28,45 @@ def create_app() -> FastAPI:
         description="Cloud-ready API for provider-independent AI inference.",
         lifespan=lifespan,
     )
+    application.add_middleware(RequestIDMiddleware)
     application.include_router(api_router)
 
     @application.exception_handler(InferenceError)
-    async def inference_error_handler(_: Request, exc: InferenceError) -> JSONResponse:
+    async def inference_error_handler(request: Request, exc: InferenceError) -> JSONResponse:
+        request_id = getattr(request.state, "request_id", None)
         return JSONResponse(
             status_code=exc.status_code,
-            content={"error": {"code": exc.code, "message": exc.message}},
+            headers={"X-Request-ID": request_id} if request_id else None,
+            content={
+                "error": {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "request_id": request_id,
+                }
+            },
+        )
+
+    @application.exception_handler(Exception)
+    async def unexpected_error_handler(request: Request, exc: Exception) -> JSONResponse:
+        request_id = getattr(request.state, "request_id", None)
+        logger.error(
+            "Unhandled application error",
+            exc_info=(type(exc), exc, exc.__traceback__),
+            extra={"request_id": request_id},
+        )
+        return JSONResponse(
+            status_code=500,
+            headers={"X-Request-ID": request_id} if request_id else None,
+            content={
+                "error": {
+                    "code": "internal_server_error",
+                    "message": "An unexpected error occurred.",
+                    "request_id": request_id,
+                }
+            },
         )
 
     return application
 
 
 app = create_app()
-
