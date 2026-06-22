@@ -13,4 +13,6 @@ The OpenAI adapter is selected through configuration and uses the same provider 
 
 Prometheus scrapes bounded-cardinality HTTP and inference metrics from `/metrics`. Grafana is provisioned from version-controlled datasource and dashboard definitions.
 
-Future iterations will add authentication, API rate limiting, Azure infrastructure, and managed secret injection.
+Inference can be protected by an API-key dependency without coupling authentication to provider logic. Production ingress should restrict operational endpoints separately.
+
+Future iterations will add distributed API rate limiting, Azure infrastructure, and managed secret injection.

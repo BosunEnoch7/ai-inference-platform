@@ -29,6 +29,7 @@ The API, orchestration logic, and provider adapter are separated so each layer c
 - Provider timeout and error translation
 - Correlation IDs through the `X-Request-ID` header
 - Structured JSON application logging
+- Optional API-key authentication with constant-time verification
 - Environment-based configuration
 - Unit and integration tests
 - Non-root Docker image and Docker Compose setup
@@ -107,6 +108,8 @@ Production secrets will be injected by the deployment platform. A later Azure ph
 
 To enable OpenAI locally, set `LLM_PROVIDER=openai`, `OPENAI_API_KEY`, and `OPENAI_MODEL` in your untracked `.env` file. The mock provider remains the safe default.
 
+To protect inference, set `API_AUTH_ENABLED=true` and inject `INFERENCE_API_KEY`. Clients must then send the key in the `X-API-Key` header. Health, readiness, API documentation, and metrics remain unprotected for platform integration; restrict their network exposure at the ingress layer in production.
+
 ## Quality checks
 
 ```bash
@@ -135,7 +138,7 @@ The API image runs as a non-root user and exposes port `8000` with a container h
 
 ## Roadmap
 
-- Authentication and API rate limiting
+- Distributed API rate limiting
 - Azure deployment infrastructure and Key Vault integration
 - Container and dependency security scanning
 

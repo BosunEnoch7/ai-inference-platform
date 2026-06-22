@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.router import api_router
 from app.core.config import get_settings
-from app.core.exceptions import InferenceError
+from app.core.exceptions import PlatformError
 from app.core.logging import configure_logging
 from app.core.metrics_middleware import MetricsMiddleware
 from app.core.middleware import RequestIDMiddleware
@@ -33,8 +33,8 @@ def create_app() -> FastAPI:
     application.add_middleware(MetricsMiddleware)
     application.include_router(api_router)
 
-    @application.exception_handler(InferenceError)
-    async def inference_error_handler(request: Request, exc: InferenceError) -> JSONResponse:
+    @application.exception_handler(PlatformError)
+    async def platform_error_handler(request: Request, exc: PlatformError) -> JSONResponse:
         request_id = getattr(request.state, "request_id", None)
         return JSONResponse(
             status_code=exc.status_code,

@@ -3,7 +3,7 @@ from functools import lru_cache
 from openai import AsyncOpenAI
 
 from app.core.config import get_settings
-from app.core.exceptions import InferenceError
+from app.core.exceptions import ConfigurationError
 from app.providers.base import LLMProvider
 from app.providers.mock import MockLLMProvider
 from app.providers.openai import OpenAIProvider
@@ -16,10 +16,9 @@ def get_provider() -> LLMProvider:
     if settings.llm_provider == "mock":
         return MockLLMProvider()
     if settings.openai_api_key is None:
-        raise InferenceError(
+        raise ConfigurationError(
             "The OpenAI provider is not configured.",
             code="provider_not_configured",
-            status_code=503,
         )
     client = AsyncOpenAI(
         api_key=settings.openai_api_key.get_secret_value(),

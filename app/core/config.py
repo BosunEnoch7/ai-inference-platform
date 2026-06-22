@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     llm_provider: Literal["mock", "openai"] = "mock"
     inference_timeout_seconds: float = Field(default=30.0, gt=0, le=300)
+    api_auth_enabled: bool = False
+    inference_api_key: SecretStr | None = None
     openai_api_key: SecretStr | None = None
     openai_model: str = "gpt-4.1-mini"
     openai_max_retries: int = Field(default=2, ge=0, le=10)
