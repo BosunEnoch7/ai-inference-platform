@@ -9,5 +9,6 @@ The platform separates transport, orchestration, and provider integration:
 
 The service is stateless, supporting horizontal scaling. Liveness is separate from readiness so platforms can restart failed processes without routing traffic to an unready instance.
 
-Future iterations will add structured logging, Prometheus metrics, provider retries, authentication, rate limiting, Azure infrastructure, and managed secret injection.
+The OpenAI adapter is selected through configuration and uses the same provider contract as the mock adapter. It applies SDK retries, request timeouts, and safe provider-error translation without exposing upstream error details.
 
+Future iterations will add Prometheus metrics, authentication, API rate limiting, Azure infrastructure, and managed secret injection.

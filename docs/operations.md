@@ -9,3 +9,4 @@ Never store credentials in source control, Compose files, or container images. L
 
 Prometheus metrics and Grafana dashboards are reserved for a later phase.
 
+The default `mock` provider requires no credentials. For OpenAI, set `LLM_PROVIDER=openai`, inject `OPENAI_API_KEY` through the runtime secret manager, and choose the deployed model with `OPENAI_MODEL`.

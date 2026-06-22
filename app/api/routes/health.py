@@ -1,7 +1,11 @@
-from fastapi import APIRouter
+from typing import Annotated
 
+from fastapi import APIRouter, Depends
+
+from app.api.dependencies import get_provider
 from app.core.config import get_settings
 from app.models.health import HealthResponse, ReadinessResponse
+from app.providers.base import LLMProvider
 
 router = APIRouter()
 
@@ -13,7 +17,7 @@ async def health() -> HealthResponse:
 
 
 @router.get("/ready", response_model=ReadinessResponse, summary="Readiness check")
-async def ready() -> ReadinessResponse:
-    settings = get_settings()
-    return ReadinessResponse(status="ready", provider=settings.llm_provider)
-
+async def ready(
+    provider: Annotated[LLMProvider, Depends(get_provider)],
+) -> ReadinessResponse:
+    return ReadinessResponse(status="ready", provider=provider.name)

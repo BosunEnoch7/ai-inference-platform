@@ -4,7 +4,7 @@ A production-inspired, cloud-ready FastAPI service that exposes AI inference thr
 
 ## Project status
 
-The first implementation uses a deterministic mock LLM provider. This keeps local development and CI credential-free while exercising the same route, service, timeout, and response flow that a real provider will use.
+Local development uses a deterministic mock LLM provider by default. An optional OpenAI adapter uses the Responses API while keeping CI and local setup credential-free.
 
 ## Architecture
 
@@ -33,6 +33,7 @@ The API, orchestration logic, and provider adapter are separated so each layer c
 - Unit and integration tests
 - Non-root Docker image and Docker Compose setup
 - GitHub Actions lint, test, coverage, and container-build jobs
+- Optional OpenAI provider with retries, timeouts, and safe error translation
 - Azure, Prometheus, and Grafana expansion points
 
 ## Repository structure
@@ -102,6 +103,8 @@ Copy-Item .env.example .env
 
 Production secrets will be injected by the deployment platform. A later Azure phase will use managed identity and Azure Key Vault instead of storing API keys in source control or container images.
 
+To enable OpenAI locally, set `LLM_PROVIDER=openai`, `OPENAI_API_KEY`, and `OPENAI_MODEL` in your untracked `.env` file. The mock provider remains the safe default.
+
 ## Quality checks
 
 ```bash
@@ -119,8 +122,6 @@ The image runs as a non-root user and exposes port `8000` with a container healt
 
 ## Roadmap
 
-- OpenAI provider with retry and rate-limit handling
-- Structured logs and request correlation
 - Prometheus metrics and Grafana dashboards
 - Authentication and API rate limiting
 - Azure deployment infrastructure and Key Vault integration
