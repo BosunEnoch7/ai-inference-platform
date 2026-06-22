@@ -36,9 +36,12 @@ def create_app() -> FastAPI:
     @application.exception_handler(PlatformError)
     async def platform_error_handler(request: Request, exc: PlatformError) -> JSONResponse:
         request_id = getattr(request.state, "request_id", None)
+        headers = dict(exc.headers)
+        if request_id:
+            headers["X-Request-ID"] = request_id
         return JSONResponse(
             status_code=exc.status_code,
-            headers={"X-Request-ID": request_id} if request_id else None,
+            headers=headers,
             content={
                 "error": {
                     "code": exc.code,

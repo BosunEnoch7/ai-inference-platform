@@ -15,4 +15,6 @@ Prometheus scrapes bounded-cardinality HTTP and inference metrics from `/metrics
 
 Inference can be protected by an API-key dependency without coupling authentication to provider logic. Production ingress should restrict operational endpoints separately.
 
-Future iterations will add distributed API rate limiting, Azure infrastructure, and managed secret injection.
+A Redis-backed fixed-window limiter uses an atomic Lua script so counters remain consistent across API replicas. Redis keys contain a one-way client identity fingerprint rather than API keys or raw addresses. The default failure policy is fail-closed.
+
+Future iterations will add Azure infrastructure and managed secret injection.

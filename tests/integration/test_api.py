@@ -77,6 +77,7 @@ def test_inference_rejects_missing_api_key(client: TestClient) -> None:
     assert response.status_code == 401
     assert response.json()["error"]["code"] == "invalid_api_key"
     assert response.json()["error"]["request_id"]
+    assert response.headers["WWW-Authenticate"] == "ApiKey"
 
 
 def test_inference_rejects_invalid_api_key(client: TestClient) -> None:

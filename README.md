@@ -30,6 +30,7 @@ The API, orchestration logic, and provider adapter are separated so each layer c
 - Correlation IDs through the `X-Request-ID` header
 - Structured JSON application logging
 - Optional API-key authentication with constant-time verification
+- Optional distributed Redis rate limiting with atomic counters
 - Environment-based configuration
 - Unit and integration tests
 - Non-root Docker image and Docker Compose setup
@@ -110,6 +111,8 @@ To enable OpenAI locally, set `LLM_PROVIDER=openai`, `OPENAI_API_KEY`, and `OPEN
 
 To protect inference, set `API_AUTH_ENABLED=true` and inject `INFERENCE_API_KEY`. Clients must then send the key in the `X-API-Key` header. Health, readiness, API documentation, and metrics remain unprotected for platform integration; restrict their network exposure at the ingress layer in production.
 
+Distributed rate limiting is disabled by default. Set `RATE_LIMIT_ENABLED=true`, choose the request/window limits, and provide `REDIS_URL`. Authenticated requests are bucketed by a one-way API-key fingerprint; unauthenticated requests use the direct client address. Redis failures reject requests by default. Set `RATE_LIMIT_FAIL_OPEN=true` only when availability is more important than enforcement.
+
 ## Quality checks
 
 ```bash
@@ -138,7 +141,6 @@ The API image runs as a non-root user and exposes port `8000` with a container h
 
 ## Roadmap
 
-- Distributed API rate limiting
 - Azure deployment infrastructure and Key Vault integration
 - Container and dependency security scanning
 
