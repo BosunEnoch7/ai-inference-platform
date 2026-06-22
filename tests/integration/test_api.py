@@ -37,3 +37,14 @@ def test_inference(client: TestClient) -> None:
 def test_inference_rejects_empty_prompt(client: TestClient) -> None:
     response = client.post("/api/v1/inference", json={"prompt": ""})
     assert response.status_code == 422
+
+
+def test_metrics(client: TestClient) -> None:
+    client.get("/health")
+    response = client.get("/metrics")
+
+    assert response.status_code == 200
+    assert "text/plain" in response.headers["content-type"]
+    assert "http_requests_total" in response.text
+    assert "http_request_duration_seconds" in response.text
+    assert "inference_requests_total" in response.text

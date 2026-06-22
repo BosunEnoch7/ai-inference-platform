@@ -11,4 +11,6 @@ The service is stateless, supporting horizontal scaling. Liveness is separate fr
 
 The OpenAI adapter is selected through configuration and uses the same provider contract as the mock adapter. It applies SDK retries, request timeouts, and safe provider-error translation without exposing upstream error details.
 
-Future iterations will add Prometheus metrics, authentication, API rate limiting, Azure infrastructure, and managed secret injection.
+Prometheus scrapes bounded-cardinality HTTP and inference metrics from `/metrics`. Grafana is provisioned from version-controlled datasource and dashboard definitions.
+
+Future iterations will add authentication, API rate limiting, Azure infrastructure, and managed secret injection.

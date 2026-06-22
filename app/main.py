@@ -9,6 +9,7 @@ from app.api.router import api_router
 from app.core.config import get_settings
 from app.core.exceptions import InferenceError
 from app.core.logging import configure_logging
+from app.core.metrics_middleware import MetricsMiddleware
 from app.core.middleware import RequestIDMiddleware
 
 logger = logging.getLogger(__name__)
@@ -29,6 +30,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     application.add_middleware(RequestIDMiddleware)
+    application.add_middleware(MetricsMiddleware)
     application.include_router(api_router)
 
     @application.exception_handler(InferenceError)

@@ -34,7 +34,9 @@ The API, orchestration logic, and provider adapter are separated so each layer c
 - Non-root Docker image and Docker Compose setup
 - GitHub Actions lint, test, coverage, and container-build jobs
 - Optional OpenAI provider with retries, timeouts, and safe error translation
-- Azure, Prometheus, and Grafana expansion points
+- Prometheus HTTP and inference metrics
+- Provisioned Grafana datasource and inference dashboard
+- Azure deployment expansion point
 
 ## Repository structure
 
@@ -114,15 +116,25 @@ pytest --cov=app --cov-report=term-missing
 
 ## Docker
 
+Set a local Grafana administrator password in `.env` before starting the stack:
+
+```text
+GRAFANA_ADMIN_PASSWORD=replace-with-a-strong-local-password
+```
+
 ```bash
 docker compose up --build
 ```
 
-The image runs as a non-root user and exposes port `8000` with a container health check.
+The API image runs as a non-root user and exposes port `8000` with a container health check. Prometheus and Grafana are bound to the local machine only:
+
+- API: `http://localhost:8000`
+- Metrics: `http://localhost:8000/metrics`
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3000`
 
 ## Roadmap
 
-- Prometheus metrics and Grafana dashboards
 - Authentication and API rate limiting
 - Azure deployment infrastructure and Key Vault integration
 - Container and dependency security scanning
