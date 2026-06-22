@@ -1,44 +1,104 @@
 # AI Inference Platform
 
-A production-inspired, cloud-ready FastAPI service for exposing AI inference behind a stable API contract.
+A production-inspired, cloud-ready FastAPI service that exposes AI inference through a stable, provider-independent API.
+
+## Project status
+
+The first implementation uses a deterministic mock LLM provider. This keeps local development and CI credential-free while exercising the same route, service, timeout, and response flow that a real provider will use.
 
 ## Architecture
 
 ```text
-Client -> FastAPI routes -> Inference service -> LLM provider -> Response
+Client
+  -> FastAPI API layer
+  -> Inference service
+  -> LLM provider interface
+  -> Mock provider (OpenAI planned)
+  -> Standardized response
 ```
 
-The initial implementation uses a deterministic mock provider. This makes the complete request path testable without credentials while preserving a clean boundary for a future OpenAI adapter.
+The API, orchestration logic, and provider adapter are separated so each layer can be tested and changed independently.
 
-## Quick start
+## Current capabilities
 
-Requires Python 3.11 or newer.
+- FastAPI application factory and generated OpenAPI documentation
+- Liveness and readiness endpoints
+- Versioned inference endpoint
+- Validated request and response schemas
+- Provider abstraction with a deterministic mock implementation
+- Provider timeout and error translation
+- Environment-based configuration
+- Unit and integration tests
+- Non-root Docker image and Docker Compose setup
+- GitHub Actions lint, test, coverage, and container-build jobs
+- Azure, Prometheus, and Grafana expansion points
+
+## Repository structure
+
+```text
+app/
+  api/          HTTP routes and dependencies
+  core/         Configuration, logging, and application errors
+  models/       Request, response, and internal schemas
+  providers/    LLM provider interfaces and adapters
+  services/     Provider-independent inference orchestration
+tests/          Unit and API integration tests
+docs/           Architecture, API, deployment, and operations guides
+monitoring/     Future Prometheus and Grafana configuration
+deploy/azure/   Future Azure deployment definitions
+.github/        Continuous integration workflows
+```
+
+## Local setup
+
+Python 3.11 or newer is required.
 
 ```bash
 python -m venv .venv
+```
+
+Activate the environment on Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Install dependencies and start the API:
+
+```bash
 python -m pip install -r requirements-dev.txt
 uvicorn app.main:app --reload
 ```
 
-Open `http://localhost:8000/docs` for generated API documentation.
+Useful local URLs:
 
-## API
+- API documentation: `http://localhost:8000/docs`
+- Liveness: `http://localhost:8000/health`
+- Readiness: `http://localhost:8000/ready`
 
-- `GET /health` — process liveness
-- `GET /ready` — service readiness and active provider
-- `POST /api/v1/inference` — validated text inference
+## Inference API
+
+`POST /api/v1/inference`
+
+```json
+{
+  "prompt": "Explain model serving in one sentence.",
+  "max_tokens": 256,
+  "temperature": 0.7
+}
+```
+
+The mock provider returns a deterministic response plus a request ID, provider name, and model name.
 
 ## Configuration and secrets
 
-Copy `.env.example` to `.env` for local configuration. Production secrets should be injected by the deployment platform; Azure Key Vault integration is planned for a later phase.
+Copy `.env.example` to `.env` for local overrides. Never commit `.env` or real credentials.
 
-## Containers
-
-```bash
-docker compose up --build
+```powershell
+Copy-Item .env.example .env
 ```
 
-The image runs as a non-root user and includes a health check.
+Production secrets will be injected by the deployment platform. A later Azure phase will use managed identity and Azure Key Vault instead of storing API keys in source control or container images.
 
 ## Quality checks
 
@@ -47,14 +107,22 @@ ruff check .
 pytest --cov=app --cov-report=term-missing
 ```
 
-GitHub Actions runs linting, tests, coverage enforcement, and a container build.
+## Docker
+
+```bash
+docker compose up --build
+```
+
+The image runs as a non-root user and exposes port `8000` with a container health check.
 
 ## Roadmap
 
-- OpenAI provider with retries and secure secret injection
+- OpenAI provider with retry and rate-limit handling
+- Structured logs and request correlation
 - Prometheus metrics and Grafana dashboards
-- Azure deployment infrastructure
-- Supply-chain and container security checks
+- Authentication and API rate limiting
+- Azure deployment infrastructure and Key Vault integration
+- Container and dependency security scanning
 
-See [architecture documentation](docs/architecture.md) and [operations guide](docs/operations.md).
+Additional detail is available in [architecture](docs/architecture.md), [API](docs/api.md), [deployment](docs/deployment.md), and [operations](docs/operations.md).
 
