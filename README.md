@@ -35,6 +35,7 @@ The API, orchestration logic, and provider adapter are separated so each layer c
 - Unit and integration tests
 - Non-root Docker image and Docker Compose setup
 - GitHub Actions lint, test, coverage, and container-build jobs
+- CI dependency and filesystem security scanning
 - Optional OpenAI provider with retries, timeouts, and safe error translation
 - Prometheus HTTP and inference metrics
 - Provisioned Grafana datasource and inference dashboard
@@ -147,4 +148,4 @@ The API image runs as a non-root user and exposes port `8000` with a container h
 - Azure-native alerts
 - Container and dependency security scanning
 
-Additional detail is available in [architecture](docs/architecture.md), [API](docs/api.md), [deployment](docs/deployment.md), [Azure OIDC setup](docs/azure-oidc-setup.md), [operations](docs/operations.md), and the [incident/blocker log](docs/incidents.md).
+Additional detail is available in [architecture](docs/architecture.md), [API](docs/api.md), [deployment](docs/deployment.md), [Azure OIDC setup](docs/azure-oidc-setup.md), [operations](docs/operations.md), [project status](docs/project-status.md), [screenshot evidence guide](docs/screenshots.md), and the [incident/blocker log](docs/incidents.md).

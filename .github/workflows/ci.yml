@@ -31,6 +31,27 @@ jobs:
       - name: Build container
         run: docker build --tag ai-inference-platform:${{ github.sha }} .
 
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install security scanners
+        run: pip install pip-audit
+      - name: Audit Python dependencies
+        run: pip-audit -r requirements.txt -r requirements-dev.txt
+      - name: Scan repository filesystem
+        uses: aquasecurity/trivy-action@0.32.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+
   infrastructure:
     runs-on: ubuntu-latest
     steps:
