@@ -146,4 +146,4 @@ The API image runs as a non-root user and exposes port `8000` with a container h
 - Azure-native alerts and staging smoke tests
 - Container and dependency security scanning
 
-Additional detail is available in [architecture](docs/architecture.md), [API](docs/api.md), [deployment](docs/deployment.md), and [operations](docs/operations.md).
+Additional detail is available in [architecture](docs/architecture.md), [API](docs/api.md), [deployment](docs/deployment.md), [Azure OIDC setup](docs/azure-oidc-setup.md), and [operations](docs/operations.md).

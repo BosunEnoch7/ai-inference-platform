@@ -13,6 +13,9 @@ param environmentName string = 'staging'
 
 param location string = resourceGroup().location
 
+@description('Object ID of the GitHub Actions deployment service principal. Used to grant Key Vault secret write permissions.')
+param deploymentPrincipalObjectId string = ''
+
 param tags object = {
   application: 'ai-inference-platform'
   environment: environmentName
@@ -36,6 +39,7 @@ module platform './modules/platform.bicep' = {
     managedEnvironmentName: managedEnvironmentName
     identityName: identityName
     keyVaultName: keyVaultName
+    deploymentPrincipalObjectId: deploymentPrincipalObjectId
     tags: tags
   }
 }
@@ -56,4 +60,3 @@ output identityName string = platform.outputs.identityName
 output keyVaultName string = platform.outputs.keyVaultName
 output managedEnvironmentName string = platform.outputs.managedEnvironmentName
 output logAnalyticsName string = platform.outputs.logAnalyticsName
-

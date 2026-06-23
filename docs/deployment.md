@@ -18,12 +18,15 @@ The application deployment adds HTTPS ingress, liveness and readiness probes, HT
 Create a Microsoft Entra application or user-assigned identity for GitHub Actions and add federated credentials for this repository's `staging` and `production` GitHub environments. Configure these GitHub environment variables:
 
 - `AZURE_CLIENT_ID`
+- `AZURE_CLIENT_OBJECT_ID`
 - `AZURE_TENANT_ID`
 - `AZURE_SUBSCRIPTION_ID`
 
 The deployment principal needs permission to create the target resource group and resources, assign the application identity's scoped roles, push to ACR, and write Key Vault secrets. Use a tightly scoped custom role where possible. A bootstrap administrator may temporarily grant Contributor plus role-assignment permissions, then reduce the scope after the resource group exists.
 
 Configure environment protection rules so production requires reviewer approval.
+
+See [Azure OIDC setup](azure-oidc-setup.md) for the step-by-step bootstrap runbook.
 
 ## GitHub secrets
 
@@ -54,4 +57,3 @@ az bicep build --file deploy/azure/app.bicep --stdout | Out-Null
 ```
 
 No Azure deployment is performed automatically on a push. Production deployment remains an explicit, protected workflow action.
-

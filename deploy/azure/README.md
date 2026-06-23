@@ -25,10 +25,10 @@ Expected GitHub environment secrets:
 Expected GitHub environment variables:
 
 - `AZURE_CLIENT_ID`
+- `AZURE_CLIENT_OBJECT_ID`
 - `AZURE_TENANT_ID`
 - `AZURE_SUBSCRIPTION_ID`
 
 ## Redis
 
 The application template accepts a Key Vault-backed Redis URL but does not create a managed Redis SKU. Provision the approved managed Redis service separately, store its TLS connection URL as the `REDIS_URL` GitHub environment secret, and enable rate limiting during deployment.
-

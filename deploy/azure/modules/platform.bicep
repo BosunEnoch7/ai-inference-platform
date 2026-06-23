@@ -3,11 +3,16 @@ param logAnalyticsName string
 param managedEnvironmentName string
 param identityName string
 param keyVaultName string
+param deploymentPrincipalObjectId string = ''
 param tags object
 
 var keyVaultSecretsUserRoleId = subscriptionResourceId(
   'Microsoft.Authorization/roleDefinitions',
   '4633458b-17de-408a-b874-0445c86b69e6'
+)
+var keyVaultSecretsOfficerRoleId = subscriptionResourceId(
+  'Microsoft.Authorization/roleDefinitions',
+  'b86a8fe4-44ce-4948-aee5-eccb2c155cd7'
 )
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
@@ -52,6 +57,16 @@ resource keyVaultSecretsUser 'Microsoft.Authorization/roleAssignments@2022-04-01
     principalId: identity.properties.principalId
     principalType: 'ServicePrincipal'
     roleDefinitionId: keyVaultSecretsUserRoleId
+  }
+}
+
+resource deploymentKeyVaultSecretsOfficer 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(deploymentPrincipalObjectId)) {
+  scope: keyVault
+  name: guid(keyVault.id, deploymentPrincipalObjectId, keyVaultSecretsOfficerRoleId)
+  properties: {
+    principalId: deploymentPrincipalObjectId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: keyVaultSecretsOfficerRoleId
   }
 }
 

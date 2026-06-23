@@ -74,6 +74,7 @@ jobs:
             --resource-group "$RESOURCE_GROUP" \
             --template-file deploy/azure/foundation.bicep \
             --parameters "deploy/azure/environments/${{ inputs.environment }}.bicepparam" \
+              deploymentPrincipalObjectId="${{ vars.AZURE_CLIENT_OBJECT_ID }}" \
             --query properties.outputs \
             --output json)
 
