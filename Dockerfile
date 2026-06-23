@@ -1,14 +1,26 @@
-FROM python:3.12-slim AS runtime
+# syntax=docker/dockerfile:1.7
+
+FROM python:3.12-slim AS wheels
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /wheels
+COPY requirements.txt ./
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip download --dest /wheels --prefer-binary --retries 10 --timeout 60 --resume-retries 10 -r requirements.txt
+
+FROM python:3.12-slim AS runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
 WORKDIR /app
 RUN addgroup --system app && adduser --system --ingroup app app
-COPY requirements.txt ./
-RUN pip install --no-cache-dir --upgrade --retries 10 --timeout 60 pip && \
-    pip install --no-cache-dir --prefer-binary --retries 10 --timeout 60 --resume-retries 10 -r requirements.txt
+COPY --from=wheels /wheels /wheels
+RUN pip install --no-cache-dir --no-index --find-links=/wheels -r /wheels/requirements.txt && \
+    rm -rf /wheels
 COPY app ./app
 USER app
 EXPOSE 8000
