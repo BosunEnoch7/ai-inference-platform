@@ -9,7 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /wheels
 COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip download --dest /wheels --prefer-binary --retries 10 --timeout 60 --resume-retries 10 -r requirements.txt
+    pip download --dest /wheels --prefer-binary --retries 10 --timeout 60 -r requirements.txt
 
 FROM python:3.12-slim AS runtime
 
