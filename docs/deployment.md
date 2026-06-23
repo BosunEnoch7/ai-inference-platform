@@ -45,6 +45,7 @@ The workflow writes these values directly to Key Vault. It never passes them as 
 5. The workflow injects environment secrets into Key Vault.
 6. Docker builds and pushes an immutable SHA-tagged image to ACR.
 7. Bicep deploys the Container App and reports its HTTPS URL.
+8. The workflow runs smoke tests against `/health`, `/ready`, and authenticated inference.
 
 ## Validation
 
@@ -57,3 +58,14 @@ az bicep build --file deploy/azure/app.bicep --stdout | Out-Null
 ```
 
 No Azure deployment is performed automatically on a push. Production deployment remains an explicit, protected workflow action.
+
+## Smoke tests
+
+The Azure deployment workflow verifies the deployed application before marking the run complete:
+
+- `GET /health` must return success.
+- `GET /ready` must return success.
+- unauthenticated `POST /api/v1/inference` must return `401`.
+- authenticated `POST /api/v1/inference` must return success using the configured `INFERENCE_API_KEY`.
+
+When `llm_provider=openai`, the authenticated smoke test performs one small real provider call.

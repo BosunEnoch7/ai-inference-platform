@@ -73,8 +73,7 @@ jobs:
             --name "foundation-${GITHUB_RUN_ID}" \
             --resource-group "$RESOURCE_GROUP" \
             --template-file deploy/azure/foundation.bicep \
-            --parameters "deploy/azure/environments/${{ inputs.environment }}.bicepparam" \
-              deploymentPrincipalObjectId="${{ vars.AZURE_CLIENT_OBJECT_ID }}" \
+            --parameters "deploy/azure/environments/${{ inputs.environment }}.bicepparam" deploymentPrincipalObjectId="${{ vars.AZURE_CLIENT_OBJECT_ID }}" \
             --query properties.outputs \
             --output json)
 
@@ -166,9 +165,47 @@ jobs:
 
           echo "url=$(jq -r '.url.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
 
+      - name: Run deployment smoke tests
+        shell: bash
+        env:
+          APP_URL: ${{ steps.application.outputs.url }}
+          INFERENCE_API_KEY: ${{ secrets.INFERENCE_API_KEY }}
+        run: |
+          set -euo pipefail
+
+          curl --fail --silent --show-error --retry 8 --retry-delay 10 "$APP_URL/health" > /tmp/health.json
+          curl --fail --silent --show-error --retry 8 --retry-delay 10 "$APP_URL/ready" > /tmp/ready.json
+
+          unauthenticated_status=$(curl \
+            --silent \
+            --show-error \
+            --output /tmp/inference-unauthenticated.json \
+            --write-out "%{http_code}" \
+            --request POST \
+            --header "Content-Type: application/json" \
+            --data '{"prompt":"smoke test","max_tokens":32,"temperature":0.1}' \
+            "$APP_URL/api/v1/inference")
+
+          if [[ "$unauthenticated_status" != "401" ]]; then
+            echo "Expected unauthenticated inference to return 401, got $unauthenticated_status." >&2
+            cat /tmp/inference-unauthenticated.json >&2
+            exit 1
+          fi
+
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --request POST \
+            --header "Content-Type: application/json" \
+            --header "X-API-Key: $INFERENCE_API_KEY" \
+            --data '{"prompt":"Reply with a short deployment smoke test confirmation.","max_tokens":64,"temperature":0.1}' \
+            "$APP_URL/api/v1/inference" > /tmp/inference-authenticated.json
+
       - name: Deployment summary
         run: |
           echo "### Azure deployment complete" >> "$GITHUB_STEP_SUMMARY"
           echo "- Environment: ${{ inputs.environment }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Image tag: $IMAGE_TAG" >> "$GITHUB_STEP_SUMMARY"
           echo "- URL: ${{ steps.application.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Smoke tests: passed" >> "$GITHUB_STEP_SUMMARY"

@@ -40,6 +40,7 @@ The API, orchestration logic, and provider adapter are separated so each layer c
 - Provisioned Grafana datasource and inference dashboard
 - Modular Azure Container Apps Bicep infrastructure
 - GitHub Actions deployment with OIDC and Key Vault references
+- Post-deployment smoke tests for health, readiness, and inference authentication
 
 ## Repository structure
 
@@ -143,7 +144,7 @@ The API image runs as a non-root user and exposes port `8000` with a container h
 ## Roadmap
 
 - Private Azure networking and managed Redis provisioning
-- Azure-native alerts and staging smoke tests
+- Azure-native alerts
 - Container and dependency security scanning
 
 Additional detail is available in [architecture](docs/architecture.md), [API](docs/api.md), [deployment](docs/deployment.md), [Azure OIDC setup](docs/azure-oidc-setup.md), [operations](docs/operations.md), and the [incident/blocker log](docs/incidents.md).
