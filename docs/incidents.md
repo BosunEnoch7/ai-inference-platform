@@ -23,6 +23,8 @@ It is intentionally kept as a living operations artifact. Each new blocker shoul
 | INC-007 | YAML validation | Accepted / monitored | Local YAML validation tools were unavailable in the environment. |
 | INC-008 | Azure OIDC bootstrap | Resolved | Azure federated credential creation failed with inline JSON quoting in PowerShell. |
 | INC-009 | GitHub environment automation | Open / user action required | GitHub CLI is not installed in the workspace, so repository environments must be configured manually or with another authenticated GitHub tool. |
+| INC-010 | Container image build | Mitigated | Local Docker build failed during PyPI dependency downloads because of transient network/DNS instability. |
+| INC-011 | ACR cloud build | Accepted / workaround required | Azure Container Registry Tasks are not permitted for the current registry/subscription. |
 
 ## INC-001: Dependency installation and full test execution instability
 
@@ -219,3 +221,39 @@ Azure-side OIDC setup was completed. GitHub-side setup must be completed manuall
 ### Follow-up
 
 Create GitHub environments named `staging` and `production`, then add the Azure variables and runtime secrets described in `docs/azure-oidc-setup.md`.
+
+## INC-010: Local Docker build dependency download failure
+
+### What happened
+
+The local Docker build failed while installing Python dependencies from PyPI. The build logs showed transient DNS/name-resolution failures and incomplete package metadata downloads.
+
+### Impact
+
+The staging container image could not be built and pushed from the local machine on the first attempt.
+
+### Treatment
+
+Runtime dependencies were pinned to make Docker and CI builds more reproducible. The Dockerfile pip install step was updated with stronger retry, timeout, resume, and binary-preference options.
+
+### Follow-up
+
+Retry the local Docker build and push. If the local network remains unstable, run the deployment through GitHub Actions after configuring the GitHub `staging` environment.
+
+## INC-011: ACR Tasks not permitted
+
+### What happened
+
+`az acr build` failed with `TasksOperationsNotAllowed` for the current registry/subscription.
+
+### Impact
+
+Azure Container Registry cloud build cannot be used as a fallback image build path in this environment.
+
+### Treatment
+
+The fallback path shifted back to local Docker build/push with improved dependency pinning and pip retry behavior.
+
+### Follow-up
+
+If cloud builds are required later, confirm subscription policy/support for ACR Tasks or use GitHub Actions hosted runners to build and push the image.
