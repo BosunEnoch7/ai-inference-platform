@@ -1,0 +1,173 @@
+name: Deploy to Azure
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Deployment environment
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+        default: staging
+      location:
+        description: Azure region
+        required: true
+        type: string
+        default: westeurope
+      llm_provider:
+        description: Inference provider
+        required: true
+        type: choice
+        options:
+          - mock
+          - openai
+        default: mock
+      rate_limit_enabled:
+        description: Enable external managed Redis rate limiting
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: azure-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      RESOURCE_GROUP: rg-ai-inference-${{ inputs.environment }}
+      CONTAINER_APP_NAME: ai-inference-platform
+      IMAGE_TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Azure with OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Create resource group
+        run: >-
+          az group create
+          --name "$RESOURCE_GROUP"
+          --location "${{ inputs.location }}"
+          --tags application=ai-inference-platform environment=${{ inputs.environment }}
+          --output none
+
+      - name: Deploy Azure foundation
+        id: foundation
+        shell: bash
+        run: |
+          set -euo pipefail
+          outputs=$(az deployment group create \
+            --name "foundation-${GITHUB_RUN_ID}" \
+            --resource-group "$RESOURCE_GROUP" \
+            --template-file deploy/azure/foundation.bicep \
+            --parameters "deploy/azure/environments/${{ inputs.environment }}.bicepparam" \
+            --query properties.outputs \
+            --output json)
+
+          echo "registry_name=$(jq -r '.registryName.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
+          echo "registry_server=$(jq -r '.registryLoginServer.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
+          echo "identity_name=$(jq -r '.identityName.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
+          echo "key_vault_name=$(jq -r '.keyVaultName.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
+          echo "managed_environment_name=$(jq -r '.managedEnvironmentName.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
+
+      - name: Store application secrets in Key Vault
+        shell: bash
+        env:
+          INFERENCE_API_KEY: ${{ secrets.INFERENCE_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+        run: |
+          set -euo pipefail
+          vault="${{ steps.foundation.outputs.key_vault_name }}"
+
+          if [[ -z "$INFERENCE_API_KEY" ]]; then
+            echo "INFERENCE_API_KEY is required for Azure deployments." >&2
+            exit 1
+          fi
+          az keyvault secret set \
+            --vault-name "$vault" \
+            --name inference-api-key \
+            --value "$INFERENCE_API_KEY" \
+            --output none
+
+          if [[ "${{ inputs.llm_provider }}" == "openai" ]]; then
+            if [[ -z "$OPENAI_API_KEY" ]]; then
+              echo "OPENAI_API_KEY is required when llm_provider=openai." >&2
+              exit 1
+            fi
+            az keyvault secret set \
+              --vault-name "$vault" \
+              --name openai-api-key \
+              --value "$OPENAI_API_KEY" \
+              --output none
+          fi
+
+          if [[ "${{ inputs.rate_limit_enabled }}" == "true" ]]; then
+            if [[ -z "$REDIS_URL" ]]; then
+              echo "REDIS_URL is required when rate limiting is enabled." >&2
+              exit 1
+            fi
+            az keyvault secret set \
+              --vault-name "$vault" \
+              --name redis-url \
+              --value "$REDIS_URL" \
+              --output none
+          fi
+
+      - name: Build and push image
+        shell: bash
+        run: |
+          set -euo pipefail
+          registry="${{ steps.foundation.outputs.registry_name }}"
+          server="${{ steps.foundation.outputs.registry_server }}"
+          image="$server/ai-inference-platform:$IMAGE_TAG"
+
+          az acr login --name "$registry"
+          docker build --tag "$image" .
+          docker push "$image"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+
+      - name: Deploy Container App
+        id: application
+        shell: bash
+        run: |
+          set -euo pipefail
+          outputs=$(az deployment group create \
+            --name "application-${GITHUB_RUN_ID}" \
+            --resource-group "$RESOURCE_GROUP" \
+            --template-file deploy/azure/app.bicep \
+            --parameters \
+              containerAppName="$CONTAINER_APP_NAME" \
+              managedEnvironmentName="${{ steps.foundation.outputs.managed_environment_name }}" \
+              registryName="${{ steps.foundation.outputs.registry_name }}" \
+              identityName="${{ steps.foundation.outputs.identity_name }}" \
+              keyVaultName="${{ steps.foundation.outputs.key_vault_name }}" \
+              image="$IMAGE" \
+              appVersion="$IMAGE_TAG" \
+              llmProvider="${{ inputs.llm_provider }}" \
+              apiAuthEnabled=true \
+              rateLimitEnabled=${{ inputs.rate_limit_enabled }} \
+            --query properties.outputs \
+            --output json)
+
+          echo "url=$(jq -r '.url.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
+
+      - name: Deployment summary
+        run: |
+          echo "### Azure deployment complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Environment: ${{ inputs.environment }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Image tag: $IMAGE_TAG" >> "$GITHUB_STEP_SUMMARY"
+          echo "- URL: ${{ steps.application.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"

@@ -31,3 +31,16 @@ jobs:
       - name: Build container
         run: docker build --tag ai-inference-platform:${{ github.sha }} .
 
+  infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-bicep@v2
+      - name: Compile foundation template
+        run: bicep build deploy/azure/foundation.bicep --stdout > /dev/null
+      - name: Compile application template
+        run: bicep build deploy/azure/app.bicep --stdout > /dev/null
+      - name: Compile environment parameters
+        run: |
+          bicep build-params deploy/azure/environments/staging.bicepparam --stdout > /dev/null
+          bicep build-params deploy/azure/environments/production.bicepparam --stdout > /dev/null

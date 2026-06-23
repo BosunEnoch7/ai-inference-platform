@@ -38,7 +38,8 @@ The API, orchestration logic, and provider adapter are separated so each layer c
 - Optional OpenAI provider with retries, timeouts, and safe error translation
 - Prometheus HTTP and inference metrics
 - Provisioned Grafana datasource and inference dashboard
-- Azure deployment expansion point
+- Modular Azure Container Apps Bicep infrastructure
+- GitHub Actions deployment with OIDC and Key Vault references
 
 ## Repository structure
 
@@ -141,7 +142,8 @@ The API image runs as a non-root user and exposes port `8000` with a container h
 
 ## Roadmap
 
-- Azure deployment infrastructure and Key Vault integration
+- Private Azure networking and managed Redis provisioning
+- Azure-native alerts and staging smoke tests
 - Container and dependency security scanning
 
 Additional detail is available in [architecture](docs/architecture.md), [API](docs/api.md), [deployment](docs/deployment.md), and [operations](docs/operations.md).

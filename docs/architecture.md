@@ -17,4 +17,6 @@ Inference can be protected by an API-key dependency without coupling authenticat
 
 A Redis-backed fixed-window limiter uses an atomic Lua script so counters remain consistent across API replicas. Redis keys contain a one-way client identity fingerprint rather than API keys or raw addresses. The default failure policy is fail-closed.
 
-Future iterations will add Azure infrastructure and managed secret injection.
+Azure Container Apps infrastructure is defined in modular Bicep. GitHub Actions uses OIDC to deploy immutable ACR images, while the application identity reads runtime secrets from Key Vault. Foundation and application deployments are separated to avoid bootstrap image dependencies.
+
+Future iterations will add private networking, a managed Redis module after SKU selection, and Azure-native alerting.
