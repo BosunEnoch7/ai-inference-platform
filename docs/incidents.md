@@ -21,6 +21,8 @@ It is intentionally kept as a living operations artifact. Each new blocker shoul
 | INC-005 | Azure managed Redis scope | Accepted / deferred | Managed Redis provisioning was deferred because the Azure Redis service/API surface is change-prone and could not be verified safely during this phase. |
 | INC-006 | Key Vault secret write permission | Resolved | GitHub deployment identity needed explicit Key Vault data-plane permission to write runtime secrets. |
 | INC-007 | YAML validation | Accepted / monitored | Local YAML validation tools were unavailable in the environment. |
+| INC-008 | Azure OIDC bootstrap | Resolved | Azure federated credential creation failed with inline JSON quoting in PowerShell. |
+| INC-009 | GitHub environment automation | Open / user action required | GitHub CLI is not installed in the workspace, so repository environments must be configured manually or with another authenticated GitHub tool. |
 
 ## INC-001: Dependency installation and full test execution instability
 
@@ -179,3 +181,41 @@ Workflow files were manually reviewed and committed with CI-side validation expe
 
 Add `actionlint` to the local or CI toolchain in a future hardening phase.
 
+## INC-008: Azure federated credential JSON quoting
+
+### What happened
+
+During live Azure OIDC bootstrap, `az ad app federated-credential create` failed when PowerShell parsed the inline JSON argument.
+
+### Impact
+
+The Azure Entra application and service principal were created, but the GitHub federated credentials were not created in the first attempt.
+
+### Treatment
+
+The federated credential parameters were written to temporary JSON files and passed to Azure CLI as file paths. This avoided shell quoting issues and successfully created:
+
+- `github-staging`;
+- `github-production`.
+
+### Follow-up
+
+Prefer JSON parameter files for Azure CLI commands that require structured JSON when running from PowerShell.
+
+## INC-009: GitHub CLI unavailable for environment automation
+
+### What happened
+
+The workspace does not have the GitHub CLI available as `gh`.
+
+### Impact
+
+GitHub repository environments, variables, and secrets cannot be configured automatically from this workspace without installing/authenticating an additional GitHub tool.
+
+### Treatment
+
+Azure-side OIDC setup was completed. GitHub-side setup must be completed manually in the GitHub web UI or from a machine with authenticated GitHub CLI/API access.
+
+### Follow-up
+
+Create GitHub environments named `staging` and `production`, then add the Azure variables and runtime secrets described in `docs/azure-oidc-setup.md`.

@@ -74,6 +74,8 @@ echo "AZURE_SUBSCRIPTION_ID=<SUBSCRIPTION_ID>"
 echo "AZURE_CLIENT_OBJECT_ID=$(az ad sp show --id "$APP_ID" --query id --output tsv)"
 ```
 
+If PowerShell has trouble parsing inline JSON, write each federated credential body to a temporary `.json` file and pass that file path to `--parameters`.
+
 ## Azure permissions
 
 For the first deployment, the GitHub identity must be able to:
