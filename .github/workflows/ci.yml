@@ -44,7 +44,7 @@ jobs:
       - name: Audit Python dependencies
         run: pip-audit -r requirements.txt -r requirements-dev.txt
       - name: Scan repository filesystem
-        uses: aquasecurity/trivy-action@0.32.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scan-ref: .
@@ -56,12 +56,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: azure/setup-bicep@v2
+      - name: Install Bicep CLI
+        run: az bicep install
       - name: Compile foundation template
-        run: bicep build deploy/azure/foundation.bicep --stdout > /dev/null
+        run: az bicep build --file deploy/azure/foundation.bicep --stdout > /dev/null
       - name: Compile application template
-        run: bicep build deploy/azure/app.bicep --stdout > /dev/null
+        run: az bicep build --file deploy/azure/app.bicep --stdout > /dev/null
       - name: Compile environment parameters
         run: |
-          bicep build-params deploy/azure/environments/staging.bicepparam --stdout > /dev/null
-          bicep build-params deploy/azure/environments/production.bicepparam --stdout > /dev/null
+          az bicep build-params --file deploy/azure/environments/staging.bicepparam --stdout > /dev/null
+          az bicep build-params --file deploy/azure/environments/production.bicepparam --stdout > /dev/null

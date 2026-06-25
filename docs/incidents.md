@@ -28,6 +28,7 @@ It is intentionally kept as a living operations artifact. Each new blocker shoul
 | INC-012 | Azure deployment polling | Resolved | Long-running Azure deployments exceeded the local command timeout while continuing server-side. |
 | INC-013 | Container Apps environment | Resolved | The staging Container Apps environment reported `ManagedClusterSuspended`, preventing a revision from starting. |
 | INC-014 | Azure CLI connectivity | Mitigated | DNS resolution for Microsoft Azure endpoints failed intermittently during deployment diagnostics and cleanup. |
+| INC-015 | GitHub Actions dependencies | Resolved | CI referenced an unavailable Bicep setup action and an unpublished Trivy action tag. |
 
 ## INC-001: Dependency installation and full test execution instability
 
@@ -314,3 +315,21 @@ No cloud state was inferred from a timed-out local command. Each operation was f
 ### Resolution
 
 The deployment recovery completed despite intermittent DNS and management endpoint timeouts. Network instability remains an environmental risk to monitor.
+
+## INC-015: Invalid GitHub Actions dependencies
+
+### What happened
+
+The CI infrastructure job referenced `azure/setup-bicep@v2`, which is unavailable, and the security job referenced unpublished tag `aquasecurity/trivy-action@0.32.0`.
+
+### Impact
+
+GitHub Actions failed during job setup before Bicep compilation or filesystem scanning could run.
+
+### Treatment
+
+The infrastructure job now installs and invokes Bicep through the Azure CLI available on GitHub-hosted runners. Trivy was updated to published release `v0.36.0`.
+
+### Resolution
+
+CI uses resolvable tooling and is rerun against `main`.
