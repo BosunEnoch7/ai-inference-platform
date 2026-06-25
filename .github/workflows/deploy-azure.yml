@@ -82,6 +82,7 @@ jobs:
           echo "identity_name=$(jq -r '.identityName.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
           echo "key_vault_name=$(jq -r '.keyVaultName.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
           echo "managed_environment_name=$(jq -r '.managedEnvironmentName.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
+          echo "managed_environment_location=$(jq -r '.managedEnvironmentLocation.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
 
       - name: Store application secrets in Key Vault
         shell: bash
@@ -151,6 +152,7 @@ jobs:
             --template-file deploy/azure/app.bicep \
             --parameters \
               containerAppName="$CONTAINER_APP_NAME" \
+              location="${{ steps.foundation.outputs.managed_environment_location }}" \
               managedEnvironmentName="${{ steps.foundation.outputs.managed_environment_name }}" \
               registryName="${{ steps.foundation.outputs.registry_name }}" \
               identityName="${{ steps.foundation.outputs.identity_name }}" \

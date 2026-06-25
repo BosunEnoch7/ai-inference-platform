@@ -6,6 +6,11 @@ A production-inspired, cloud-ready FastAPI service that exposes AI inference thr
 
 Local development uses a deterministic mock LLM provider by default. An optional OpenAI adapter uses the Responses API while keeping CI and local setup credential-free.
 
+The staging platform is deployed on Azure Container Apps and passed live health, readiness, authentication, inference, and metrics smoke tests.
+
+- Staging URL: `https://ai-inference-platform.icydune-429b6614.northeurope.azurecontainerapps.io`
+- Deployed image: `ai-inference-platform:41e7f27`
+
 ## Architecture
 
 ```text
@@ -13,7 +18,7 @@ Client
   -> FastAPI API layer
   -> Inference service
   -> LLM provider interface
-  -> Mock provider (OpenAI planned)
+  -> Mock or OpenAI provider
   -> Standardized response
 ```
 
@@ -54,8 +59,8 @@ app/
   services/     Provider-independent inference orchestration
 tests/          Unit and API integration tests
 docs/           Architecture, API, deployment, and operations guides
-monitoring/     Future Prometheus and Grafana configuration
-deploy/azure/   Future Azure deployment definitions
+monitoring/     Prometheus and Grafana configuration
+deploy/azure/   Azure Bicep deployment definitions
 .github/        Continuous integration workflows
 ```
 
@@ -108,7 +113,7 @@ Copy `.env.example` to `.env` for local overrides. Never commit `.env` or real c
 Copy-Item .env.example .env
 ```
 
-Production secrets will be injected by the deployment platform. A later Azure phase will use managed identity and Azure Key Vault instead of storing API keys in source control or container images.
+Production secrets are injected using managed identity and Azure Key Vault instead of being stored in source control or container images.
 
 To enable OpenAI locally, set `LLM_PROVIDER=openai`, `OPENAI_API_KEY`, and `OPENAI_MODEL` in your untracked `.env` file. The mock provider remains the safe default.
 
@@ -146,6 +151,6 @@ The API image runs as a non-root user and exposes port `8000` with a container h
 
 - Private Azure networking and managed Redis provisioning
 - Azure-native alerts
-- Container and dependency security scanning
+- Production environment approval and deployment
 
-Additional detail is available in [architecture](docs/architecture.md), [API](docs/api.md), [deployment](docs/deployment.md), [Azure OIDC setup](docs/azure-oidc-setup.md), [operations](docs/operations.md), [project status](docs/project-status.md), [screenshot evidence guide](docs/screenshots.md), and the [incident/blocker log](docs/incidents.md).
+Additional detail is available in [architecture](docs/architecture.md), [API](docs/api.md), [deployment](docs/deployment.md), [staging evidence](docs/deployment-evidence.md), [Azure OIDC setup](docs/azure-oidc-setup.md), [operations](docs/operations.md), [project status](docs/project-status.md), [screenshot evidence guide](docs/screenshots.md), and the [incident/blocker log](docs/incidents.md).

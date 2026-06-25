@@ -23,8 +23,11 @@ It is intentionally kept as a living operations artifact. Each new blocker shoul
 | INC-007 | YAML validation | Accepted / monitored | Local YAML validation tools were unavailable in the environment. |
 | INC-008 | Azure OIDC bootstrap | Resolved | Azure federated credential creation failed with inline JSON quoting in PowerShell. |
 | INC-009 | GitHub environment automation | Open / user action required | GitHub CLI is not installed in the workspace, so repository environments must be configured manually or with another authenticated GitHub tool. |
-| INC-010 | Container image build | Mitigated | Local Docker build failed during PyPI dependency downloads because of transient network/DNS instability. |
+| INC-010 | Container image build | Resolved | Local Docker build failed during PyPI dependency downloads because of transient network/DNS instability. |
 | INC-011 | ACR cloud build | Accepted / workaround required | Azure Container Registry Tasks are not permitted for the current registry/subscription. |
+| INC-012 | Azure deployment polling | Resolved | Long-running Azure deployments exceeded the local command timeout while continuing server-side. |
+| INC-013 | Container Apps environment | Resolved | The staging Container Apps environment reported `ManagedClusterSuspended`, preventing a revision from starting. |
+| INC-014 | Azure CLI connectivity | Mitigated | DNS resolution for Microsoft Azure endpoints failed intermittently during deployment diagnostics and cleanup. |
 
 ## INC-001: Dependency installation and full test execution instability
 
@@ -236,9 +239,9 @@ The staging container image could not be built and pushed from the local machine
 
 Runtime dependencies were pinned to make Docker and CI builds more reproducible. The Dockerfile pip install step was updated with stronger retry, timeout, resume, and binary-preference options.
 
-### Follow-up
+### Resolution
 
-Retry the local Docker build and push. If the local network remains unstable, run the deployment through GitHub Actions after configuring the GitHub `staging` environment.
+The cached, pinned wheelhouse build completed successfully. Image `41e7f27` was pushed to Azure Container Registry.
 
 ## INC-011: ACR Tasks not permitted
 
@@ -257,3 +260,57 @@ The fallback path shifted back to local Docker build/push with improved dependen
 ### Follow-up
 
 If cloud builds are required later, confirm subscription policy/support for ACR Tasks or use GitHub Actions hosted runners to build and push the image.
+
+## INC-012: Local timeout while Azure deployment continued
+
+### What happened
+
+The staging application deployment exceeded the local Azure CLI command timeout. Azure Resource Manager continued processing the deployment after the local command exited.
+
+### Impact
+
+The local timeout could have been mistaken for a failed deployment.
+
+### Treatment
+
+The deployment was checked directly in Azure using its deployment name instead of submitting a duplicate deployment.
+
+### Resolution
+
+The server-side state was polled independently. The first deployment eventually reported its terminal failure clearly, and the recovery deployment completed successfully.
+
+## INC-013: Azure Container Apps managed environment suspended
+
+### What happened
+
+The application deployment created the Container App resource, but Azure reported `ManagedClusterSuspended` for the staging managed environment. The Container App remained `InProgress` without an FQDN or ready revision.
+
+### Impact
+
+The deployed image could not start, so live smoke tests could not yet run.
+
+### Treatment
+
+The immutable image was successfully built and pushed to ACR as `ai-inference-platform:41e7f27`. The failed Container App and suspended West Europe environment were removed. Because the subscription allowed only one Container Apps environment, the quota was released before creating a replacement in North Europe.
+
+### Resolution
+
+The replacement environment `aiinfer-staging-dz6yrr-cae-ne` reached `Succeeded`. The Container App deployed with a healthy running revision, and every live smoke test passed.
+
+## INC-014: Azure CLI authentication endpoint DNS failure
+
+### What happened
+
+During diagnostics, the local machine temporarily failed to resolve `login.microsoftonline.com`.
+
+### Impact
+
+Azure environment and activity-log queries could not complete during that attempt.
+
+### Treatment
+
+No cloud state was inferred from a timed-out local command. Each operation was followed by an explicit Azure resource-state query, and safe retries continued after connectivity recovered.
+
+### Resolution
+
+The deployment recovery completed despite intermittent DNS and management endpoint timeouts. Network instability remains an environmental risk to monitor.

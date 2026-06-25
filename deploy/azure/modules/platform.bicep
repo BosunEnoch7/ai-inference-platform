@@ -1,4 +1,5 @@
 param location string
+param managedEnvironmentLocation string = location
 param logAnalyticsName string
 param managedEnvironmentName string
 param identityName string
@@ -72,7 +73,7 @@ resource deploymentKeyVaultSecretsOfficer 'Microsoft.Authorization/roleAssignmen
 
 resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = {
   name: managedEnvironmentName
-  location: location
+  location: managedEnvironmentLocation
   tags: tags
   properties: {
     appLogsConfiguration: {
@@ -91,4 +92,5 @@ output identityId string = identity.id
 output identityPrincipalId string = identity.properties.principalId
 output keyVaultName string = keyVault.name
 output managedEnvironmentName string = managedEnvironment.name
+output managedEnvironmentLocation string = managedEnvironment.location
 output logAnalyticsName string = logAnalytics.name

@@ -4,9 +4,9 @@ This document summarizes the current delivery state of `ai-inference-platform`.
 
 ## Current completion estimate
 
-The repository implementation is approximately **90% complete**.
+The repository implementation is approximately **98% complete**.
 
-The full cloud project is approximately **80% complete** because the remaining work requires live Azure and GitHub environment configuration.
+The full staging project is approximately **95% complete**. The live Azure deployment and smoke tests are complete; only GitHub-side verification and evidence screenshots remain.
 
 ## Completed
 
@@ -36,12 +36,18 @@ The full cloud project is approximately **80% complete** because the remaining w
 - Azure Key Vault secret flow
 - Post-deployment smoke tests
 - Incident and blocker log
+- Live Azure foundation deployment
+- Microsoft.App provider registration
+- Staging container image build
+- Staging image push to Azure Container Registry (`41e7f27`)
+- Recovery from a suspended Container Apps managed environment
+- Healthy North Europe Container Apps environment
+- Live Azure Container App deployment
+- Healthy running revision (`ai-inference-platform--69zwius`)
+- Live health, readiness, authentication, inference, and metrics smoke tests
 
-## Remaining before live staging
+## Remaining for final staging evidence
 
-- Create Azure subscription/resource access if not already available.
-- Create GitHub Actions OIDC identity in Microsoft Entra ID.
-- Add federated credentials for GitHub `staging` and `production` environments.
 - Add GitHub environment variables:
   - `AZURE_CLIENT_ID`
   - `AZURE_CLIENT_OBJECT_ID`
@@ -49,7 +55,7 @@ The full cloud project is approximately **80% complete** because the remaining w
   - `AZURE_SUBSCRIPTION_ID`
 - Add GitHub environment secret:
   - `INFERENCE_API_KEY`
-- Run the `Deploy to Azure` workflow for `staging`.
+- Verify the `Deploy to Azure` workflow from GitHub Actions.
 - Capture deployment evidence screenshots.
 
 ## Remaining before production
@@ -73,4 +79,3 @@ The project can be considered complete when:
 - Screenshots are captured in `screenshots/`.
 - README and docs accurately describe the final deployed state.
 - The incident log includes all known blockers and resolutions.
-

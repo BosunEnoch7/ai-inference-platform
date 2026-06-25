@@ -12,6 +12,8 @@ param namePrefix string = 'aiinfer'
 param environmentName string = 'staging'
 
 param location string = resourceGroup().location
+param containerAppsLocation string = location
+param managedEnvironmentNameOverride string = ''
 
 @description('Object ID of the GitHub Actions deployment service principal. Used to grant Key Vault secret write permissions.')
 param deploymentPrincipalObjectId string = ''
@@ -28,13 +30,16 @@ var compactName = replace(baseName, '-', '')
 var identityName = '${baseName}-identity'
 var keyVaultName = take('${compactName}kv', 24)
 var logAnalyticsName = '${baseName}-logs'
-var managedEnvironmentName = '${baseName}-cae'
+var managedEnvironmentName = empty(managedEnvironmentNameOverride)
+  ? '${baseName}-cae'
+  : managedEnvironmentNameOverride
 var registryName = take('${compactName}acr', 50)
 
 module platform './modules/platform.bicep' = {
   name: 'platform-resources'
   params: {
     location: location
+    managedEnvironmentLocation: containerAppsLocation
     logAnalyticsName: logAnalyticsName
     managedEnvironmentName: managedEnvironmentName
     identityName: identityName
@@ -59,4 +64,5 @@ output registryLoginServer string = registry.outputs.registryLoginServer
 output identityName string = platform.outputs.identityName
 output keyVaultName string = platform.outputs.keyVaultName
 output managedEnvironmentName string = platform.outputs.managedEnvironmentName
+output managedEnvironmentLocation string = platform.outputs.managedEnvironmentLocation
 output logAnalyticsName string = platform.outputs.logAnalyticsName
