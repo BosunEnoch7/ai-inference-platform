@@ -8,8 +8,8 @@ The staging platform was deployed and verified on June 25, 2026.
 - Azure Container Apps environment: `aiinfer-staging-dz6yrr-cae-ne`
 - Region: North Europe
 - Container App: `ai-inference-platform`
-- Revision: `ai-inference-platform--69zwius`
-- Image tag: `41e7f27`
+- Revision: `ai-inference-platform--0000001`
+- Image tag: `a3b3d9aa657eededdf21456ef24bf3ebde87a97c`
 - Runtime provider: `mock`
 - API authentication: enabled
 - Rate limiting: disabled until managed Redis is provisioned
@@ -26,3 +26,10 @@ The staging platform was deployed and verified on June 25, 2026.
 | `GET /metrics` | 200 | 200 |
 
 The authenticated inference request returned the mock provider, `mock-model-v1`, and the expected deterministic response. The API key was retrieved from Azure Key Vault for the test and was not printed or stored in this document.
+
+## Automation evidence
+
+- CI workflow: [successful run 28193108353](https://github.com/BosunEnoch7/ai-inference-platform/actions/runs/28193108353)
+- Azure deployment workflow: [successful run 28195026390](https://github.com/BosunEnoch7/ai-inference-platform/actions/runs/28195026390)
+- CI jobs passed: quality, container, security, and infrastructure
+- Deployment steps passed: OIDC login, foundation, Key Vault secrets, image build/push, Container App deployment, and smoke tests

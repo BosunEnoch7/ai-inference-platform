@@ -30,6 +30,8 @@ It is intentionally kept as a living operations artifact. Each new blocker shoul
 | INC-014 | Azure CLI connectivity | Mitigated | DNS resolution for Microsoft Azure endpoints failed intermittently during deployment diagnostics and cleanup. |
 | INC-015 | GitHub Actions dependencies | Resolved | CI referenced an unavailable Bicep setup action and an unpublished Trivy action tag. |
 | INC-016 | Development dependency security | Resolved | `pip-audit` detected CVE-2025-71176 in pytest 8.4.2. |
+| INC-017 | GitHub OIDC issuer matching | Resolved | Entra federated credentials used a trailing slash that did not exactly match GitHub's token issuer. |
+| INC-018 | Azure resource-group location | Resolved | A deployment retry supplied North Europe for an existing West Europe resource group. |
 
 ## INC-001: Dependency installation and full test execution instability
 
@@ -352,3 +354,39 @@ The supported pytest range was moved to patched release 9.0.3 or newer while rem
 ### Resolution
 
 CI dependency resolution now selects a pytest release containing the published security fix.
+
+## INC-017: GitHub OIDC issuer mismatch
+
+### What happened
+
+GitHub produced the expected staging subject claim, but Azure login returned `AADSTS700211`. The Entra federated credentials used issuer `https://token.actions.githubusercontent.com/`, while the token issuer was `https://token.actions.githubusercontent.com`.
+
+### Impact
+
+Passwordless GitHub Actions authentication could not complete even though the client, tenant, subscription, audience, and subject were correct.
+
+### Treatment
+
+The staging and production federated credential issuers were updated to remove the trailing slash.
+
+### Resolution
+
+GitHub Actions authenticated successfully to Azure through OIDC without a client secret.
+
+## INC-018: Existing resource-group location mismatch
+
+### What happened
+
+The first authenticated workflow retry passed North Europe to `az group create`, but `rg-ai-inference-staging` already existed in West Europe. Azure resource-group locations cannot be changed.
+
+### Impact
+
+The workflow stopped immediately after successful OIDC authentication.
+
+### Treatment
+
+The workflow was rerun with West Europe as the resource-group location. The staging Bicep parameters continued to place the recovered Container Apps environment in North Europe.
+
+### Resolution
+
+The complete GitHub deployment passed, including foundation deployment, secret injection, image build and push, Container App deployment, and live smoke tests.

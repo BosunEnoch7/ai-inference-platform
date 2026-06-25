@@ -54,7 +54,7 @@ az ad app federated-credential create \
   --id "$APP_ID" \
   --parameters "{
     \"name\": \"github-staging\",
-    \"issuer\": \"https://token.actions.githubusercontent.com/\",
+    \"issuer\": \"https://token.actions.githubusercontent.com\",
     \"subject\": \"repo:$REPO:environment:staging\",
     \"audiences\": [\"api://AzureADTokenExchange\"]
   }"
@@ -63,7 +63,7 @@ az ad app federated-credential create \
   --id "$APP_ID" \
   --parameters "{
     \"name\": \"github-production\",
-    \"issuer\": \"https://token.actions.githubusercontent.com/\",
+    \"issuer\": \"https://token.actions.githubusercontent.com\",
     \"subject\": \"repo:$REPO:environment:production\",
     \"audiences\": [\"api://AzureADTokenExchange\"]
   }"
@@ -75,6 +75,8 @@ echo "AZURE_CLIENT_OBJECT_ID=$(az ad sp show --id "$APP_ID" --query id --output 
 ```
 
 If PowerShell has trouble parsing inline JSON, write each federated credential body to a temporary `.json` file and pass that file path to `--parameters`.
+
+The issuer must match GitHub's token claim exactly. Do not add a trailing slash.
 
 ## Azure permissions
 
@@ -134,7 +136,7 @@ Protect `production` with required reviewers before deployment.
 Start with the safest staging deployment:
 
 - environment: `staging`
-- location: your chosen Azure region
+- location: the existing resource-group region (`westeurope` for this staging deployment)
 - llm_provider: `mock`
 - rate_limit_enabled: `false`
 

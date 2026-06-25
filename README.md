@@ -6,10 +6,11 @@ A production-inspired, cloud-ready FastAPI service that exposes AI inference thr
 
 Local development uses a deterministic mock LLM provider by default. An optional OpenAI adapter uses the Responses API while keeping CI and local setup credential-free.
 
-The staging platform is deployed on Azure Container Apps and passed live health, readiness, authentication, inference, and metrics smoke tests.
+The staging platform is deployed on Azure Container Apps and passed live health, readiness, authentication, inference, and metrics smoke tests. GitHub Actions CI and the passwordless Azure OIDC deployment workflow are green.
 
 - Staging URL: `https://ai-inference-platform.icydune-429b6614.northeurope.azurecontainerapps.io`
-- Deployed image: `ai-inference-platform:41e7f27`
+- [Successful CI run](https://github.com/BosunEnoch7/ai-inference-platform/actions/runs/28193108353)
+- [Successful Azure deployment](https://github.com/BosunEnoch7/ai-inference-platform/actions/runs/28195026390)
 
 ## Architecture
 

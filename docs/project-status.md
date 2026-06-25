@@ -4,9 +4,9 @@ This document summarizes the current delivery state of `ai-inference-platform`.
 
 ## Current completion estimate
 
-The repository implementation is approximately **98% complete**.
+The repository implementation is **complete for the staging scope**.
 
-The full staging project is approximately **95% complete**. The live Azure deployment and smoke tests are complete; only GitHub-side verification and evidence screenshots remain.
+The full staging project is approximately **99% complete**. CI, GitHub OIDC deployment, Azure runtime, and smoke tests are green. Only optional visual screenshots remain.
 
 ## Completed
 
@@ -39,23 +39,20 @@ The full staging project is approximately **95% complete**. The live Azure deplo
 - Live Azure foundation deployment
 - Microsoft.App provider registration
 - Staging container image build
-- Staging image push to Azure Container Registry (`41e7f27`)
+- Staging image push to Azure Container Registry
 - Recovery from a suspended Container Apps managed environment
 - Healthy North Europe Container Apps environment
 - Live Azure Container App deployment
-- Healthy running revision (`ai-inference-platform--69zwius`)
+- Healthy running revision (`ai-inference-platform--0000001`)
 - Live health, readiness, authentication, inference, and metrics smoke tests
+- Green GitHub Actions quality, container, security, and infrastructure jobs
+- GitHub `staging` and `production` environments
+- Passwordless GitHub-to-Azure OIDC authentication
+- Successful GitHub Actions staging deployment
+- GitHub deployment smoke tests
 
-## Remaining for final staging evidence
+## Remaining for optional visual evidence
 
-- Add GitHub environment variables:
-  - `AZURE_CLIENT_ID`
-  - `AZURE_CLIENT_OBJECT_ID`
-  - `AZURE_TENANT_ID`
-  - `AZURE_SUBSCRIPTION_ID`
-- Add GitHub environment secret:
-  - `INFERENCE_API_KEY`
-- Verify the `Deploy to Azure` workflow from GitHub Actions.
 - Capture deployment evidence screenshots.
 
 ## Remaining before production
