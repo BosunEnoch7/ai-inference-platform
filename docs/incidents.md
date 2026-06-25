@@ -347,7 +347,7 @@ The security job correctly blocked the pipeline even though the vulnerable packa
 
 ### Treatment
 
-The supported pytest range was moved to patched release 9.0.3 or newer while remaining below the next major version.
+The supported pytest range was moved to patched release 9.0.3 or newer while remaining below the next major version. `pytest-asyncio` was upgraded to the compatible 1.x line.
 
 ### Resolution
 
