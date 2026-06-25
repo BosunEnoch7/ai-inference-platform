@@ -4,6 +4,19 @@ Use this guide to capture final proof that the platform works as a production-st
 
 Store screenshots in the `screenshots/` directory.
 
+## Captured evidence
+
+The following safe, public evidence was captured on June 25, 2026:
+
+- `github-actions-ci.png`
+- `github-actions-azure-deploy.png`
+- `api-docs.png`
+- `health-endpoint.png`
+- `ready-endpoint.png`
+- `metrics-endpoint.png`
+
+These images show the green CI and Azure deployment workflows, the deployed API surface, live platform health/readiness, and Prometheus monitoring output.
+
 ## Recommended screenshots
 
 | File name | Evidence |
@@ -39,4 +52,3 @@ Store screenshots in the `screenshots/` directory.
 7. Show inference succeeding with an API key.
 8. Show metrics/Grafana.
 9. Show incident log and explain how blockers were handled.
-

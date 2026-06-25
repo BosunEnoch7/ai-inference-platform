@@ -6,7 +6,7 @@ This document summarizes the current delivery state of `ai-inference-platform`.
 
 The repository implementation is **complete for the staging scope**.
 
-The full staging project is approximately **99% complete**. CI, GitHub OIDC deployment, Azure runtime, and smoke tests are green. Only optional visual screenshots remain.
+The full staging project is **100% complete**. CI, GitHub OIDC deployment, Azure runtime, smoke tests, documentation, and visual evidence are complete.
 
 ## Completed
 
@@ -51,9 +51,9 @@ The full staging project is approximately **99% complete**. CI, GitHub OIDC depl
 - Successful GitHub Actions staging deployment
 - GitHub deployment smoke tests
 
-## Remaining for optional visual evidence
+## Remaining
 
-- Capture deployment evidence screenshots.
+No work remains for the agreed staging scope. Production rollout and advanced hardening are separate follow-on phases.
 
 ## Remaining before production
 
