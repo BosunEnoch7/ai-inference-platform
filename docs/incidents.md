@@ -29,6 +29,7 @@ It is intentionally kept as a living operations artifact. Each new blocker shoul
 | INC-013 | Container Apps environment | Resolved | The staging Container Apps environment reported `ManagedClusterSuspended`, preventing a revision from starting. |
 | INC-014 | Azure CLI connectivity | Mitigated | DNS resolution for Microsoft Azure endpoints failed intermittently during deployment diagnostics and cleanup. |
 | INC-015 | GitHub Actions dependencies | Resolved | CI referenced an unavailable Bicep setup action and an unpublished Trivy action tag. |
+| INC-016 | Development dependency security | Resolved | `pip-audit` detected CVE-2025-71176 in pytest 8.4.2. |
 
 ## INC-001: Dependency installation and full test execution instability
 
@@ -333,3 +334,21 @@ The infrastructure job now installs and invokes Bicep through the Azure CLI avai
 ### Resolution
 
 CI uses resolvable tooling and is rerun against `main`.
+
+## INC-016: Vulnerable pytest development dependency
+
+### What happened
+
+After CI tooling was repaired, `pip-audit` detected CVE-2025-71176 in pytest 8.4.2.
+
+### Impact
+
+The security job correctly blocked the pipeline even though the vulnerable package is used only for development and testing.
+
+### Treatment
+
+The supported pytest range was moved to patched release 9.0.3 or newer while remaining below the next major version.
+
+### Resolution
+
+CI dependency resolution now selects a pytest release containing the published security fix.
