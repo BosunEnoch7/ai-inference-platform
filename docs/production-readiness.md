@@ -13,6 +13,8 @@ The Azure deployment workflow protects production with two controls:
 - the GitHub `production` environment must be selected;
 - the workflow input `production_confirmation` must be exactly `DEPLOY PRODUCTION`;
 - the workflow must be executed from a version tag such as `v1.0.0`.
+- Azure Monitor alerts must be enabled with an operations email.
+- required secrets are validated before Azure authentication or resource creation.
 
 Recommended GitHub environment settings:
 
@@ -53,10 +55,11 @@ Production secrets are written to Azure Key Vault during deployment and referenc
 3. Select the release tag as the workflow ref.
 4. Choose `environment=production`.
 5. Choose the production provider and rate-limit settings.
-6. Enter `DEPLOY PRODUCTION` in `production_confirmation`.
-7. Start the workflow and wait for reviewer approval if configured.
-8. Confirm the workflow smoke tests pass.
-9. Record the production URL, image tag, revision, and workflow run in `docs/deployment-evidence.md`.
+6. Enable monitoring and enter the operations alert email.
+7. Enter `DEPLOY PRODUCTION` in `production_confirmation`.
+8. Start the workflow and wait for reviewer approval if configured.
+9. Confirm the workflow smoke tests pass.
+10. Record the production URL, image tag, revision, and workflow run in `docs/deployment-evidence.md`.
 
 ## Rollback procedure
 

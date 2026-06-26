@@ -8,7 +8,7 @@ The repository implementation is **complete for the staging scope** and producti
 
 The full staging project is **100% complete**. CI, GitHub OIDC deployment, Azure runtime, smoke tests, documentation, and visual evidence are complete.
 
-The full production-grade platform is approximately **85% complete**. The remaining work is mostly production governance, alerting, least-privilege review, and optional managed services such as Redis/private networking.
+The full production-grade platform is approximately **92% complete**. The remaining work is production governance, final provider/secret decisions, least-privilege review, and the first production deployment.
 
 ## Completed
 
@@ -55,6 +55,9 @@ The full production-grade platform is approximately **85% complete**. The remain
 - Production deployment gate requiring explicit confirmation
 - Production deployments restricted to version tags
 - Production readiness guide and rollback checklist
+- Azure Monitor application and Container Apps system alert templates
+- Pre-deployment secret and configuration validation
+- Mandatory monitoring gate for production deployments
 
 ## Remaining
 
@@ -68,7 +71,7 @@ No work remains for the agreed staging scope. Production rollout and advanced ha
 - Decide whether distributed rate limiting should be enabled.
 - If enabling rate limiting, provision managed Redis and add `REDIS_URL`.
 - Review Azure permissions and reduce bootstrap privileges.
-- Add Azure-native alerts.
+- Supply the production operations email to activate the Azure-native alerts.
 - Optionally add private networking.
 
 ## Final acceptance criteria

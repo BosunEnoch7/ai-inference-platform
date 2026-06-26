@@ -29,6 +29,16 @@ on:
         required: true
         type: boolean
         default: false
+      monitoring_enabled:
+        description: Enable Azure Monitor email alerts
+        required: true
+        type: boolean
+        default: false
+      monitoring_alert_email:
+        description: Operations email for Azure Monitor alerts
+        required: false
+        type: string
+        default: ""
       production_confirmation:
         description: Type DEPLOY PRODUCTION when deploying the production environment
         required: false
@@ -54,21 +64,57 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate production deployment gate
-        if: ${{ inputs.environment == 'production' }}
+      - name: Validate deployment inputs and secrets
         shell: bash
+        env:
+          INFERENCE_API_KEY: ${{ secrets.INFERENCE_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
+          LLM_PROVIDER: ${{ inputs.llm_provider }}
+          RATE_LIMIT_ENABLED: ${{ inputs.rate_limit_enabled }}
+          MONITORING_ENABLED: ${{ inputs.monitoring_enabled }}
+          MONITORING_ALERT_EMAIL: ${{ inputs.monitoring_alert_email }}
+          PRODUCTION_CONFIRMATION: ${{ inputs.production_confirmation }}
         run: |
           set -euo pipefail
 
-          if [[ "${{ inputs.production_confirmation }}" != "DEPLOY PRODUCTION" ]]; then
-            echo "Production deployments require production_confirmation='DEPLOY PRODUCTION'." >&2
+          if [[ -z "$INFERENCE_API_KEY" ]]; then
+            echo "INFERENCE_API_KEY is required for Azure deployments." >&2
             exit 1
           fi
 
-          if [[ "${GITHUB_REF}" != refs/tags/v* ]]; then
-            echo "Production deployments must be run from a version tag such as v1.0.0." >&2
-            echo "Current ref: ${GITHUB_REF}" >&2
+          if [[ "$LLM_PROVIDER" == "openai" && -z "$OPENAI_API_KEY" ]]; then
+            echo "OPENAI_API_KEY is required when llm_provider=openai." >&2
             exit 1
+          fi
+
+          if [[ "$RATE_LIMIT_ENABLED" == "true" && -z "$REDIS_URL" ]]; then
+            echo "REDIS_URL is required when rate limiting is enabled." >&2
+            exit 1
+          fi
+
+          if [[ "$MONITORING_ENABLED" == "true" && -z "$MONITORING_ALERT_EMAIL" ]]; then
+            echo "monitoring_alert_email is required when monitoring is enabled." >&2
+            exit 1
+          fi
+
+          if [[ "$DEPLOY_ENVIRONMENT" == "production" ]]; then
+            if [[ "$PRODUCTION_CONFIRMATION" != "DEPLOY PRODUCTION" ]]; then
+              echo "Production deployments require production_confirmation='DEPLOY PRODUCTION'." >&2
+              exit 1
+            fi
+
+            if [[ "${GITHUB_REF}" != refs/tags/v* ]]; then
+              echo "Production deployments must be run from a version tag such as v1.0.0." >&2
+              echo "Current ref: ${GITHUB_REF}" >&2
+              exit 1
+            fi
+
+            if [[ "$MONITORING_ENABLED" != "true" ]]; then
+              echo "Azure Monitor alerts must be enabled for production deployments." >&2
+              exit 1
+            fi
           fi
 
       - name: Authenticate to Azure with OIDC
@@ -89,13 +135,19 @@ jobs:
       - name: Deploy Azure foundation
         id: foundation
         shell: bash
+        env:
+          MONITORING_ENABLED: ${{ inputs.monitoring_enabled }}
+          MONITORING_ALERT_EMAIL: ${{ inputs.monitoring_alert_email }}
         run: |
           set -euo pipefail
           outputs=$(az deployment group create \
             --name "foundation-${GITHUB_RUN_ID}" \
             --resource-group "$RESOURCE_GROUP" \
             --template-file deploy/azure/foundation.bicep \
-            --parameters "deploy/azure/environments/${{ inputs.environment }}.bicepparam" deploymentPrincipalObjectId="${{ vars.AZURE_CLIENT_OBJECT_ID }}" \
+            --parameters "deploy/azure/environments/${{ inputs.environment }}.bicepparam" \
+              deploymentPrincipalObjectId="${{ vars.AZURE_CLIENT_OBJECT_ID }}" \
+              monitoringEnabled="$MONITORING_ENABLED" \
+              monitoringAlertEmail="$MONITORING_ALERT_EMAIL" \
             --query properties.outputs \
             --output json)
 
@@ -232,4 +284,5 @@ jobs:
           echo "- Environment: ${{ inputs.environment }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Image tag: $IMAGE_TAG" >> "$GITHUB_STEP_SUMMARY"
           echo "- URL: ${{ steps.application.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Azure Monitor alerts: ${{ inputs.monitoring_enabled }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Smoke tests: passed" >> "$GITHUB_STEP_SUMMARY"
