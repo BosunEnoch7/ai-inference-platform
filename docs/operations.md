@@ -26,3 +26,18 @@ After each Azure deployment, verify:
 - authenticated `POST /api/v1/inference` returns `200`
 
 The GitHub Actions Azure deployment workflow runs these checks automatically after the Container App deployment.
+
+## Production deployment guardrails
+
+Production deployments are intentionally stricter than staging deployments. The deployment workflow requires:
+
+- the `production` GitHub environment;
+- a version tag ref such as `v1.0.0`;
+- the confirmation input `DEPLOY PRODUCTION`;
+- required production secrets in the GitHub `production` environment.
+
+Use the [production readiness guide](production-readiness.md) before promoting a release.
+
+## Rollback readiness
+
+Before production deployment, identify the last known good image tag and Container Apps revision. If a release fails after deployment, roll back to the last known good revision or redeploy the previous image tag, then rerun health, readiness, and authenticated inference smoke checks.

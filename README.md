@@ -48,6 +48,7 @@ The API, orchestration logic, and provider adapter are separated so each layer c
 - Modular Azure Container Apps Bicep infrastructure
 - GitHub Actions deployment with OIDC and Key Vault references
 - Post-deployment smoke tests for health, readiness, and inference authentication
+- Production deployment gate requiring an explicit confirmation and version tag
 
 ## Repository structure
 
@@ -150,8 +151,9 @@ The API image runs as a non-root user and exposes port `8000` with a container h
 
 ## Roadmap
 
-- Private Azure networking and managed Redis provisioning
-- Azure-native alerts
-- Production environment approval and deployment
+- Configure GitHub production environment reviewer approval
+- Add Azure-native alert rules
+- Add managed Redis provisioning for production rate limiting
+- Add private Azure networking, Front Door, or WAF where required
 
-Additional detail is available in [architecture](docs/architecture.md), [API](docs/api.md), [deployment](docs/deployment.md), [staging evidence](docs/deployment-evidence.md), [Azure OIDC setup](docs/azure-oidc-setup.md), [operations](docs/operations.md), [project status](docs/project-status.md), [screenshot evidence guide](docs/screenshots.md), and the [incident/blocker log](docs/incidents.md).
+Additional detail is available in [architecture](docs/architecture.md), [API](docs/api.md), [deployment](docs/deployment.md), [production readiness](docs/production-readiness.md), [staging evidence](docs/deployment-evidence.md), [Azure OIDC setup](docs/azure-oidc-setup.md), [operations](docs/operations.md), [project status](docs/project-status.md), [screenshot evidence guide](docs/screenshots.md), and the [incident/blocker log](docs/incidents.md).

@@ -29,6 +29,11 @@ on:
         required: true
         type: boolean
         default: false
+      production_confirmation:
+        description: Type DEPLOY PRODUCTION when deploying the production environment
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -48,6 +53,23 @@ jobs:
       IMAGE_TAG: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Validate production deployment gate
+        if: ${{ inputs.environment == 'production' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ inputs.production_confirmation }}" != "DEPLOY PRODUCTION" ]]; then
+            echo "Production deployments require production_confirmation='DEPLOY PRODUCTION'." >&2
+            exit 1
+          fi
+
+          if [[ "${GITHUB_REF}" != refs/tags/v* ]]; then
+            echo "Production deployments must be run from a version tag such as v1.0.0." >&2
+            echo "Current ref: ${GITHUB_REF}" >&2
+            exit 1
+          fi
 
       - name: Authenticate to Azure with OIDC
         uses: azure/login@v2

@@ -4,9 +4,11 @@ This document summarizes the current delivery state of `ai-inference-platform`.
 
 ## Current completion estimate
 
-The repository implementation is **complete for the staging scope**.
+The repository implementation is **complete for the staging scope** and production hardening has started.
 
 The full staging project is **100% complete**. CI, GitHub OIDC deployment, Azure runtime, smoke tests, documentation, and visual evidence are complete.
+
+The full production-grade platform is approximately **85% complete**. The remaining work is mostly production governance, alerting, least-privilege review, and optional managed services such as Redis/private networking.
 
 ## Completed
 
@@ -50,6 +52,9 @@ The full staging project is **100% complete**. CI, GitHub OIDC deployment, Azure
 - Passwordless GitHub-to-Azure OIDC authentication
 - Successful GitHub Actions staging deployment
 - GitHub deployment smoke tests
+- Production deployment gate requiring explicit confirmation
+- Production deployments restricted to version tags
+- Production readiness guide and rollback checklist
 
 ## Remaining
 
