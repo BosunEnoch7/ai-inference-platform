@@ -94,3 +94,4 @@ output keyVaultName string = keyVault.name
 output managedEnvironmentName string = managedEnvironment.name
 output managedEnvironmentLocation string = managedEnvironment.location
 output logAnalyticsName string = logAnalytics.name
+output logAnalyticsId string = logAnalytics.id

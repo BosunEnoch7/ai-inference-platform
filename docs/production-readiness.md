@@ -43,6 +43,7 @@ Production secrets are written to Azure Key Vault during deployment and referenc
 - If enabling rate limiting, managed Redis is provisioned and `REDIS_URL` is present.
 - Azure permissions are reviewed and reduced after bootstrap where possible.
 - Alerting expectations are defined for availability, error rate, latency, and container restarts.
+- `monitoringEnabled` is set to `true` and `monitoringAlertEmail` identifies the operations owner.
 - Rollback procedure is understood before deployment.
 
 ## Production deployment procedure
@@ -85,7 +86,8 @@ Minimum production signals:
 
 ## Production hardening backlog
 
-- Add Azure Monitor alert rules through Bicep.
+- Enable the Azure Monitor alert rules already defined in Bicep with the production operations email.
+- Extend alerts with latency and availability thresholds after production traffic establishes a baseline.
 - Add managed Redis infrastructure through Bicep.
 - Add private ingress, Front Door, or WAF if public exposure is not acceptable.
 - Replace broad bootstrap Azure roles with least-privilege custom roles where practical.

@@ -14,6 +14,8 @@ param environmentName string = 'staging'
 param location string = resourceGroup().location
 param containerAppsLocation string = location
 param managedEnvironmentNameOverride string = ''
+param monitoringEnabled bool = false
+param monitoringAlertEmail string = ''
 
 @description('Object ID of the GitHub Actions deployment service principal. Used to grant Key Vault secret write permissions.')
 param deploymentPrincipalObjectId string = ''
@@ -59,6 +61,18 @@ module registry './modules/registry.bicep' = {
   }
 }
 
+module monitoring './modules/monitoring.bicep' = {
+  name: 'monitoring-resources'
+  params: {
+    location: location
+    logAnalyticsWorkspaceId: platform.outputs.logAnalyticsId
+    namePrefix: baseName
+    alertEmail: monitoringAlertEmail
+    enabled: monitoringEnabled
+    tags: tags
+  }
+}
+
 output registryName string = registry.outputs.registryName
 output registryLoginServer string = registry.outputs.registryLoginServer
 output identityName string = platform.outputs.identityName
@@ -66,3 +80,4 @@ output keyVaultName string = platform.outputs.keyVaultName
 output managedEnvironmentName string = platform.outputs.managedEnvironmentName
 output managedEnvironmentLocation string = platform.outputs.managedEnvironmentLocation
 output logAnalyticsName string = platform.outputs.logAnalyticsName
+output monitoringNotificationsEnabled bool = monitoring.outputs.notificationsEnabled
