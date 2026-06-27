@@ -2,6 +2,8 @@ param location string
 param managedEnvironmentLocation string = location
 param logAnalyticsName string
 param managedEnvironmentName string
+param deployManagedEnvironment bool = true
+param existingManagedEnvironmentResourceGroup string = ''
 param identityName string
 param keyVaultName string
 param deploymentPrincipalObjectId string = ''
@@ -71,7 +73,7 @@ resource deploymentKeyVaultSecretsOfficer 'Microsoft.Authorization/roleAssignmen
   }
 }
 
-resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = {
+resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = if (deployManagedEnvironment) {
   name: managedEnvironmentName
   location: managedEnvironmentLocation
   tags: tags
@@ -87,11 +89,17 @@ resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = {
   }
 }
 
+resource existingManagedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' existing = if (!deployManagedEnvironment) {
+  name: managedEnvironmentName
+  scope: resourceGroup(existingManagedEnvironmentResourceGroup)
+}
+
 output identityName string = identity.name
 output identityId string = identity.id
 output identityPrincipalId string = identity.properties.principalId
 output keyVaultName string = keyVault.name
-output managedEnvironmentName string = managedEnvironment.name
-output managedEnvironmentLocation string = managedEnvironment.location
+output managedEnvironmentName string = deployManagedEnvironment ? managedEnvironment!.name : existingManagedEnvironment!.name
+output managedEnvironmentLocation string = deployManagedEnvironment ? managedEnvironment!.location : existingManagedEnvironment!.location
+output managedEnvironmentResourceGroup string = deployManagedEnvironment ? resourceGroup().name : existingManagedEnvironmentResourceGroup
 output logAnalyticsName string = logAnalytics.name
 output logAnalyticsId string = logAnalytics.id

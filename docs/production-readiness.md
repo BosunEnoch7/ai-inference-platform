@@ -11,6 +11,11 @@ provider. This validates the production platform without introducing an external
 LLM credential or usage cost. Promotion to `openai` is a separate controlled
 configuration change.
 
+The current Azure subscription permits one Container Apps managed environment.
+Production therefore shares the existing North Europe managed environment with
+staging while retaining separate application resources, identity, registry,
+Key Vault, secrets, monitoring rules, and resource group.
+
 ## Production deployment controls
 
 The Azure deployment workflow protects production with two controls:

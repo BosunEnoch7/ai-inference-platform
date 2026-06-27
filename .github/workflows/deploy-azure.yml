@@ -157,6 +157,7 @@ jobs:
           echo "key_vault_name=$(jq -r '.keyVaultName.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
           echo "managed_environment_name=$(jq -r '.managedEnvironmentName.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
           echo "managed_environment_location=$(jq -r '.managedEnvironmentLocation.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
+          echo "managed_environment_resource_group=$(jq -r '.managedEnvironmentResourceGroup.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
 
       - name: Store application secrets in Key Vault
         shell: bash
@@ -228,6 +229,7 @@ jobs:
               containerAppName="$CONTAINER_APP_NAME" \
               location="${{ steps.foundation.outputs.managed_environment_location }}" \
               managedEnvironmentName="${{ steps.foundation.outputs.managed_environment_name }}" \
+              managedEnvironmentResourceGroup="${{ steps.foundation.outputs.managed_environment_resource_group }}" \
               registryName="${{ steps.foundation.outputs.registry_name }}" \
               identityName="${{ steps.foundation.outputs.identity_name }}" \
               keyVaultName="${{ steps.foundation.outputs.key_vault_name }}" \

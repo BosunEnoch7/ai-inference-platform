@@ -14,6 +14,8 @@ param environmentName string = 'staging'
 param location string = resourceGroup().location
 param containerAppsLocation string = location
 param managedEnvironmentNameOverride string = ''
+param deployManagedEnvironment bool = true
+param existingManagedEnvironmentResourceGroup string = ''
 param monitoringEnabled bool = false
 param monitoringAlertEmail string = ''
 
@@ -44,6 +46,8 @@ module platform './modules/platform.bicep' = {
     managedEnvironmentLocation: containerAppsLocation
     logAnalyticsName: logAnalyticsName
     managedEnvironmentName: managedEnvironmentName
+    deployManagedEnvironment: deployManagedEnvironment
+    existingManagedEnvironmentResourceGroup: existingManagedEnvironmentResourceGroup
     identityName: identityName
     keyVaultName: keyVaultName
     deploymentPrincipalObjectId: deploymentPrincipalObjectId
@@ -79,5 +83,6 @@ output identityName string = platform.outputs.identityName
 output keyVaultName string = platform.outputs.keyVaultName
 output managedEnvironmentName string = platform.outputs.managedEnvironmentName
 output managedEnvironmentLocation string = platform.outputs.managedEnvironmentLocation
+output managedEnvironmentResourceGroup string = platform.outputs.managedEnvironmentResourceGroup
 output logAnalyticsName string = platform.outputs.logAnalyticsName
 output monitoringNotificationsEnabled bool = monitoring.outputs.notificationsEnabled

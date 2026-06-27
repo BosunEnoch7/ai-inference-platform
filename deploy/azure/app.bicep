@@ -3,6 +3,7 @@ targetScope = 'resourceGroup'
 param location string = resourceGroup().location
 param containerAppName string = 'ai-inference-platform'
 param managedEnvironmentName string
+param managedEnvironmentResourceGroup string = resourceGroup().name
 param registryName string
 param identityName string
 param keyVaultName string
@@ -30,6 +31,7 @@ param tags object = {
 
 resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' existing = {
   name: managedEnvironmentName
+  scope: resourceGroup(managedEnvironmentResourceGroup)
 }
 
 resource registry 'Microsoft.ContainerRegistry/registries@2023-07-01' existing = {
@@ -226,4 +228,3 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
 output containerAppName string = containerApp.name
 output fqdn string = containerApp.properties.configuration.ingress.fqdn
 output url string = 'https://${containerApp.properties.configuration.ingress.fqdn}'
-

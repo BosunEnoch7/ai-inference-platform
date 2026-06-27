@@ -34,6 +34,7 @@ It is intentionally kept as a living operations artifact. Each new blocker shoul
 | INC-018 | Azure resource-group location | Resolved | A deployment retry supplied North Europe for an existing West Europe resource group. |
 | INC-019 | Azure RBAC inventory | Resolved | A broad role-assignment query exceeded the local command timeout. |
 | INC-020 | Production secret generation | Resolved | The initial PowerShell RNG method was unavailable, so the secret was immediately regenerated and rotated. |
+| INC-021 | Container Apps environment quota | Resolved | Production could not create a second managed environment under the subscription quota. |
 
 ## INC-001: Dependency installation and full test execution instability
 
@@ -440,3 +441,27 @@ length, and written over the earlier value.
 GitHub confirmed the rotated `INFERENCE_API_KEY` update timestamp. Future
 PowerShell secret-generation commands must stop on errors and validate generated
 material before writing it to an external secret store.
+
+## INC-021: Production Container Apps environment quota
+
+### What happened
+
+The first `v1.0.0` production deployment failed Azure preflight validation with
+`MaxNumberOfGlobalEnvironmentsInSubExceeded`. The subscription permits only one
+Container Apps managed environment, already used by staging.
+
+### Impact
+
+The production resource group was created, but the foundation deployment stopped
+before application secrets, images, or the Container App were deployed.
+
+### Treatment
+
+The Bicep templates were extended to support an existing managed environment in
+another resource group. Production now references the healthy staging-managed
+environment in North Europe while retaining separate production resources.
+
+### Resolution
+
+The quota blocker is handled as an explicit environment parameter rather than by
+deleting staging or repeatedly submitting an impossible second environment.
