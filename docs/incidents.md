@@ -459,7 +459,10 @@ before application secrets, images, or the Container App were deployed.
 
 The Bicep templates were extended to support an existing managed environment in
 another resource group. Production now references the healthy staging-managed
-environment in North Europe while retaining separate production resources.
+environment in North Europe while retaining separate production resources. A
+second attempt showed that alerts must also query the shared environment's Log
+Analytics workspace, so monitoring now supports that cross-resource-group
+workspace explicitly.
 
 ### Resolution
 

@@ -14,7 +14,9 @@ configuration change.
 The current Azure subscription permits one Container Apps managed environment.
 Production therefore shares the existing North Europe managed environment with
 staging while retaining separate application resources, identity, registry,
-Key Vault, secrets, monitoring rules, and resource group.
+Key Vault, secrets, monitoring rules, and resource group. Alert queries target
+the shared environment's Log Analytics workspace because it receives both
+staging and production container logs.
 
 ## Production deployment controls
 

@@ -1,5 +1,6 @@
 param location string
-param logAnalyticsWorkspaceId string
+param logAnalyticsWorkspaceName string
+param logAnalyticsWorkspaceResourceGroup string
 param namePrefix string
 param alertEmail string = ''
 param enabled bool = false
@@ -25,7 +26,8 @@ resource actionGroup 'Microsoft.Insights/actionGroups@2023-01-01' = if (notifica
 }
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
-  name: last(split(logAnalyticsWorkspaceId, '/'))
+  name: logAnalyticsWorkspaceName
+  scope: resourceGroup(logAnalyticsWorkspaceResourceGroup)
 }
 
 resource applicationErrors 'Microsoft.Insights/scheduledQueryRules@2023-12-01' = if (notificationsEnabled) {

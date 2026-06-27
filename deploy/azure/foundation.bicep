@@ -18,6 +18,8 @@ param deployManagedEnvironment bool = true
 param existingManagedEnvironmentResourceGroup string = ''
 param monitoringEnabled bool = false
 param monitoringAlertEmail string = ''
+param monitoringWorkspaceNameOverride string = ''
+param monitoringWorkspaceResourceGroupOverride string = ''
 
 @description('Object ID of the GitHub Actions deployment service principal. Used to grant Key Vault secret write permissions.')
 param deploymentPrincipalObjectId string = ''
@@ -38,6 +40,12 @@ var managedEnvironmentName = empty(managedEnvironmentNameOverride)
   ? '${baseName}-cae'
   : managedEnvironmentNameOverride
 var registryName = take('${compactName}acr', 50)
+var monitoringWorkspaceName = empty(monitoringWorkspaceNameOverride)
+  ? logAnalyticsName
+  : monitoringWorkspaceNameOverride
+var monitoringWorkspaceResourceGroup = empty(monitoringWorkspaceResourceGroupOverride)
+  ? resourceGroup().name
+  : monitoringWorkspaceResourceGroupOverride
 
 module platform './modules/platform.bicep' = {
   name: 'platform-resources'
@@ -69,7 +77,8 @@ module monitoring './modules/monitoring.bicep' = {
   name: 'monitoring-resources'
   params: {
     location: location
-    logAnalyticsWorkspaceId: platform.outputs.logAnalyticsId
+    logAnalyticsWorkspaceName: monitoringWorkspaceName
+    logAnalyticsWorkspaceResourceGroup: monitoringWorkspaceResourceGroup
     namePrefix: baseName
     alertEmail: monitoringAlertEmail
     enabled: monitoringEnabled
