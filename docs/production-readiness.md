@@ -6,6 +6,11 @@ This guide defines what must be true before `ai-inference-platform` is promoted 
 
 The platform is staging-ready and release-tagged. Production deployment is intentionally gated and should only run from a version tag after the checklist below is complete.
 
+The first production infrastructure release will use the deterministic `mock`
+provider. This validates the production platform without introducing an external
+LLM credential or usage cost. Promotion to `openai` is a separate controlled
+configuration change.
+
 ## Production deployment controls
 
 The Azure deployment workflow protects production with two controls:
@@ -39,8 +44,8 @@ Production secrets are written to Azure Key Vault during deployment and referenc
 - A staging deployment has passed smoke tests.
 - A version tag has been created from the tested commit.
 - `production` GitHub environment has reviewer protection enabled.
-- Production `INFERENCE_API_KEY` has been created and stored in GitHub environment secrets.
-- LLM provider decision is documented: `mock` for infrastructure demo or `openai` for real inference.
+- Production `INFERENCE_API_KEY` has been created and stored in GitHub environment secrets. (Complete)
+- LLM provider decision is documented: initial release uses `mock`. (Complete)
 - If using OpenAI, `OPENAI_API_KEY` is present and model choice is approved.
 - If enabling rate limiting, managed Redis is provisioned and `REDIS_URL` is present.
 - Azure permissions are reviewed and reduced after bootstrap where possible.

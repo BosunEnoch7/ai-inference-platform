@@ -33,6 +33,7 @@ It is intentionally kept as a living operations artifact. Each new blocker shoul
 | INC-017 | GitHub OIDC issuer matching | Resolved | Entra federated credentials used a trailing slash that did not exactly match GitHub's token issuer. |
 | INC-018 | Azure resource-group location | Resolved | A deployment retry supplied North Europe for an existing West Europe resource group. |
 | INC-019 | Azure RBAC inventory | Resolved | A broad role-assignment query exceeded the local command timeout. |
+| INC-020 | Production secret generation | Resolved | The initial PowerShell RNG method was unavailable, so the secret was immediately regenerated and rotated. |
 
 ## INC-001: Dependency installation and full test execution instability
 
@@ -414,3 +415,28 @@ the known deployment principal and explicit subscription scope.
 The narrower query completed and identified subscription-scoped `Contributor`
 and `User Access Administrator` assignments. The safe reduction plan is recorded
 in `docs/security.md`.
+
+## INC-020: Production inference-key generation compatibility
+
+### What happened
+
+The local PowerShell/.NET runtime did not support the static
+`RandomNumberGenerator.Fill` method. PowerShell continued after that method
+failed, so the first value supplied to GitHub was not cryptographically random.
+
+### Impact
+
+An invalid production inference key briefly existed in the GitHub production
+environment. It was never displayed, distributed, or used by a deployment.
+
+### Treatment
+
+The key was immediately regenerated with the compatible
+`RandomNumberGenerator.Create().GetBytes(...)` API, checked for the expected
+length, and written over the earlier value.
+
+### Resolution
+
+GitHub confirmed the rotated `INFERENCE_API_KEY` update timestamp. Future
+PowerShell secret-generation commands must stop on errors and validate generated
+material before writing it to an external secret store.
