@@ -32,6 +32,7 @@ It is intentionally kept as a living operations artifact. Each new blocker shoul
 | INC-016 | Development dependency security | Resolved | `pip-audit` detected CVE-2025-71176 in pytest 8.4.2. |
 | INC-017 | GitHub OIDC issuer matching | Resolved | Entra federated credentials used a trailing slash that did not exactly match GitHub's token issuer. |
 | INC-018 | Azure resource-group location | Resolved | A deployment retry supplied North Europe for an existing West Europe resource group. |
+| INC-019 | Azure RBAC inventory | Resolved | A broad role-assignment query exceeded the local command timeout. |
 
 ## INC-001: Dependency installation and full test execution instability
 
@@ -390,3 +391,26 @@ The workflow was rerun with West Europe as the resource-group location. The stag
 ### Resolution
 
 The complete GitHub deployment passed, including foundation deployment, secret injection, image build and push, Container App deployment, and live smoke tests.
+
+## INC-019: Azure RBAC inventory timeout
+
+### What happened
+
+The first subscription-wide Azure role-assignment inventory exceeded the local
+command timeout.
+
+### Impact
+
+No Azure state changed, but the least-privilege review could not be completed
+from that query.
+
+### Treatment
+
+The active subscription was verified first, then the inventory was repeated with
+the known deployment principal and explicit subscription scope.
+
+### Resolution
+
+The narrower query completed and identified subscription-scoped `Contributor`
+and `User Access Administrator` assignments. The safe reduction plan is recorded
+in `docs/security.md`.

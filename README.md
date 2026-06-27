@@ -152,8 +152,9 @@ The API image runs as a non-root user and exposes port `8000` with a container h
 ## Roadmap
 
 - Configure GitHub production environment reviewer approval
-- Add Azure-native alert rules
+- Activate the Azure-native alerts with the production operations email
+- Apply the documented resource-group-scoped Azure role model
 - Add managed Redis provisioning for production rate limiting
 - Add private Azure networking, Front Door, or WAF where required
 
-Additional detail is available in [architecture](docs/architecture.md), [API](docs/api.md), [deployment](docs/deployment.md), [production readiness](docs/production-readiness.md), [staging evidence](docs/deployment-evidence.md), [Azure OIDC setup](docs/azure-oidc-setup.md), [operations](docs/operations.md), [project status](docs/project-status.md), [screenshot evidence guide](docs/screenshots.md), and the [incident/blocker log](docs/incidents.md).
+Additional detail is available in [architecture](docs/architecture.md), [API](docs/api.md), [deployment](docs/deployment.md), [production readiness](docs/production-readiness.md), [security review](docs/security.md), [staging evidence](docs/deployment-evidence.md), [Azure OIDC setup](docs/azure-oidc-setup.md), [operations](docs/operations.md), [project status](docs/project-status.md), [screenshot evidence guide](docs/screenshots.md), and the [incident/blocker log](docs/incidents.md).

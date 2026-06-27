@@ -8,7 +8,7 @@ The repository implementation is **complete for the staging scope** and producti
 
 The full staging project is **100% complete**. CI, GitHub OIDC deployment, Azure runtime, smoke tests, documentation, and visual evidence are complete.
 
-The full production-grade platform is approximately **92% complete**. The remaining work is production governance, final provider/secret decisions, least-privilege review, and the first production deployment.
+The full production-grade platform is approximately **94% complete**. The remaining work is production governance, final provider/secret decisions, applying the reviewed role changes, and the first production deployment.
 
 ## Completed
 
@@ -58,6 +58,7 @@ The full production-grade platform is approximately **92% complete**. The remain
 - Azure Monitor application and Container Apps system alert templates
 - Pre-deployment secret and configuration validation
 - Mandatory monitoring gate for production deployments
+- Azure deployment identity access inventory and least-privilege remediation plan
 
 ## Remaining
 
@@ -70,7 +71,7 @@ No work remains for the agreed staging scope. Production rollout and advanced ha
 - If using OpenAI, add `OPENAI_API_KEY`.
 - Decide whether distributed rate limiting should be enabled.
 - If enabling rate limiting, provision managed Redis and add `REDIS_URL`.
-- Review Azure permissions and reduce bootstrap privileges.
+- Apply the documented resource-group-scoped Azure roles after the production resource group is bootstrapped.
 - Supply the production operations email to activate the Azure-native alerts.
 - Optionally add private networking.
 
